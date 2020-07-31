@@ -23,8 +23,6 @@ import javafx.stage.StageStyle;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -33,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class Utility {
 
     private XSSFWorkbook wb;
@@ -238,8 +237,8 @@ public class Utility {
             }
             ClasificacionSucsProperty clasificacionSucsProperty = clasificacionSucsProperties.get(index);
             espesor = Math.abs(clasificacionSucsProperty.getProfundidad() - acumProf) * 0.3048;
-            acum_espesor = acum_espesor + espesor;
-            elevacion = elevacion - espesor;
+            acum_espesor += espesor;
+            elevacion -= espesor;
             // cota
             Cell cell = row.createCell(0);
             sheet.setColumnWidth(cell.getColumnIndex(), 3000);
@@ -374,7 +373,7 @@ public class Utility {
         }
     }
 
-    public XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize) {
+    private XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize) {
         XSSFCellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();
         font.setBold(true);
@@ -386,7 +385,7 @@ public class Utility {
         return cellStyle;
     }
 
-    public XSSFCellStyle customCellStyle(XSSFWorkbook wb) {
+    private XSSFCellStyle customCellStyle(XSSFWorkbook wb) {
         XSSFCellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();
         font.setBold(true);
@@ -492,18 +491,13 @@ public class Utility {
         return listaValores;
     }
 
-    Logger logger = LoggerFactory.getLogger(getClass());
-
     List<Double> yValues(ObservableList<DatosCampoProperty> datosCampoProperties) {
         double constantePies = 0.0;
         List<Integer> listaValores = this.xValues(datosCampoProperties);
         List<Double> listaConstante = new ArrayList<>();
         int size = datosCampoProperties.size() * 3;
+        System.out.println("Size of array " + size);
         for (int j = 1; j <= size; j++) {
-            double profundidadInicial = datosCampoProperties.get(j).getProfundidadInicial();
-            double profundidadFinal = datosCampoProperties.get(j).getProfundidadFinal();
-            double difProfundidad = profundidadFinal-profundidadInicial;
-            System.out.println("Diferencia en profundidades: " + difProfundidad);
             listaConstante.add(constantePies);
             if (j % 2 == 0) {
                 constantePies = constantePies + 1;
@@ -519,7 +513,7 @@ public class Utility {
     }
 
     @SuppressWarnings("unused")
-    public CellStyle createBackgroundColorXSSFCellStyle(Workbook wb, IndexedColors color, FillPatternType foreGround) {
+    private CellStyle createBackgroundColorXSSFCellStyle(Workbook wb, IndexedColors color, FillPatternType foreGround) {
         CellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();
         font.setBold(true);
