@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.*?>
+<AnchorPane fx:id="clientesPane" prefHeight="498.0" prefWidth="953.0" xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.dysconcsa.app.grafico.controller.ClientesController">
+    <children>
+        <TableView fx:id="tableClientes" prefHeight="483.0" prefWidth="987.0" AnchorPane.bottomAnchor="0.0"
+                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <columns>
+                <TableColumn fx:id="colCodigoCliente" prefWidth="100.0" text="Codigo"/>
+                <TableColumn fx:id="colNombreCliente" prefWidth="702.0" text="Cliente"/>
+                <TableColumn fx:id="colFecha" prefWidth="143.0" text="Fecha"/>
+            </columns>
+        </TableView>
+    </children>
+</AnchorPane>

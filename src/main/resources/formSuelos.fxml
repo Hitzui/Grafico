@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<AnchorPane fx:id="formSuelos" prefHeight="457.0" prefWidth="555.0" style="-fx-border-width: 2; -fx-border-style: solid inside;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1" fx:controller="com.dysconcsa.app.grafico.controller.FormSuelosController">
+    <children>
+        <Pane fx:id="header" layoutX="341.0" layoutY="23.0" prefHeight="68.0" prefWidth="555.0" style="-fx-background-color: #343a40;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+        <Label layoutX="51.0" layoutY="14.0" text="Clasificacion S.U.C.S" textFill="WHITE">
+            <font>
+                <Font size="32.0" />
+            </font>
+        </Label>
+        <Label layoutX="62.0" layoutY="81.0" text="Descripcion:" />
+        <Label layoutX="63.0" layoutY="142.0" text="Simbologia:" />
+        <JFXComboBox fx:id="cmbColor" layoutX="65.0" layoutY="229.0" prefHeight="25.0" prefWidth="200.0" />
+        <Label layoutX="62.0" layoutY="212.0" text="Color de trama:" />
+        <JFXComboBox fx:id="cmbPattern" layoutX="65.0" layoutY="293.0" prefHeight="25.0" prefWidth="200.0" />
+        <Label layoutX="65.0" layoutY="276.0" text="Patron:" />
+        <JFXTextField fx:id="txtNombre" layoutX="65.0" layoutY="98.0" prefHeight="25.0" prefWidth="200.0" />
+        <JFXTextField fx:id="txtSimbologia" layoutX="65.0" layoutY="159.0" prefHeight="25.0" prefWidth="200.0" />
+        <JFXButton fx:id="btnSave" buttonType="RAISED" defaultButton="true" layoutX="69.0" layoutY="376.0" text="Aceptar" />
+        <JFXButton fx:id="btnCancel" buttonType="RAISED" cancelButton="true" layoutX="291.0" layoutY="376.0" text="Cancelar" />
+    </children>
+</AnchorPane>

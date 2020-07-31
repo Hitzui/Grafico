@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="paneValues" prefHeight="600.0" prefWidth="1006.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dysconcsa.app.grafico.controller.ValuesController">
+	<children>
+		<TableView fx:id="tableDatos" editable="true" layoutX="-44.0" prefHeight="560.0" prefWidth="741.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="350.0" AnchorPane.topAnchor="0.0">
+			<columns>
+				<TableColumn fx:id="colProfundidadInicial" prefWidth="75.0" text="Pof. Ini." />
+				<TableColumn fx:id="colProfundidadFinal" prefWidth="75.0" sortable="false" text="Prof. Fin." />
+				<TableColumn fx:id="colRecobro" prefWidth="75.0" sortable="false" text="Recobro" />
+				<TableColumn fx:id="colGolpe1" prefWidth="75.0" sortable="false" text="Golpe 1" />
+				<TableColumn fx:id="colGolpe2" prefWidth="75.0" sortable="false" text="Golpe 2" />
+				<TableColumn fx:id="colGolpe3" prefWidth="75.0" sortable="false" text="Golpe 3" />
+			</columns>
+			<columnResizePolicy>
+				<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+			</columnResizePolicy>
+		</TableView>
+
+		<AnchorPane layoutX="-1.0" layoutY="305.0" />
+		<TableView fx:id="tableTrepano" layoutX="539.0" layoutY="232.0" prefHeight="555.0" prefWidth="326.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="0.0">
+			<columns>
+				<TableColumn fx:id="colProfundidadTrepano" prefWidth="75.0" text="Profundidad" />
+				<TableColumn fx:id="colTrepano" prefWidth="75.0" text="Trepano" />
+			</columns>
+			<columnResizePolicy>
+				<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+			</columnResizePolicy>
+		</TableView>
+	</children>
+</AnchorPane>

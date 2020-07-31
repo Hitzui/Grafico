@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<AnchorPane fx:id="anchorPane" prefHeight="432.0" prefWidth="525.0" style="-fx-border-width: 2; -fx-background-color: white; -fx-border-style: solid inside;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dysconcsa.app.grafico.controller.FormClienteController">
+    <children>
+        <GridPane layoutX="27.0" layoutY="65.0" prefHeight="221.0" prefWidth="471.0" AnchorPane.leftAnchor="27.0" AnchorPane.rightAnchor="27.0" AnchorPane.topAnchor="65.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="246.0" minWidth="10.0" prefWidth="127.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="374.0" minWidth="10.0" prefWidth="374.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="84.0" minHeight="10.0" prefHeight="84.0" valignment="TOP" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="68.0" minHeight="10.0" prefHeight="63.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Label text="Cliente" />
+                <Label text="Proyecto" GridPane.rowIndex="1" />
+                <Label text="Fecha" GridPane.rowIndex="2" />
+            <JFXTextField fx:id="txtCliente" GridPane.columnIndex="1" />
+            <JFXTextArea fx:id="txtProyecto" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <JFXDatePicker fx:id="txtFecha" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+            </children>
+        </GridPane>
+      <JFXButton fx:id="btnAceptar" layoutX="140.0" layoutY="351.0" text="Aceptar" />
+      <JFXButton fx:id="btnCancelar" layoutX="374.0" layoutY="351.0" text="Cancelar" />
+      <Pane fx:id="header" layoutX="135.0" layoutY="-71.0" prefHeight="59.0" prefWidth="525.0" style="-fx-background-color: #3B3B3B;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label fx:id="lblTitulo" layoutX="25.0" layoutY="11.0" prefHeight="38.0" prefWidth="290.0" text="Editar Cliente - Sondeos" textFill="WHITE">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+         </children></Pane>
+    </children>
+</AnchorPane>

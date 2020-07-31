@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane fx:id="centerPane" stylesheets="@/css/table.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1" fx:controller="com.dysconcsa.app.grafico.controller.SuelosController">
+    <children>
+          <TableView fx:id="tableSuelos" prefHeight="483.0" prefWidth="728.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <columns>
+                  <TableColumn fx:id="colDescripcion" prefWidth="179.0" text="Descripcion" />
+                  <TableColumn fx:id="colSimbolo" prefWidth="201.0" text="Simbolo" />
+                  <TableColumn fx:id="colColor" prefWidth="127.0" text="Color" />
+                  <TableColumn fx:id="colPattern" prefWidth="161.0" text="Patron" />
+              </columns>
+          </TableView>
+    </children>
+</AnchorPane>

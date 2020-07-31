@@ -1,0 +1,61 @@
+* {
+    -fx-primarytext: #B2B2B2;
+    -fx-color-1: #1976D2;
+    -fx-blue: #007bff;
+    -fx-indigo: #6610f2;
+    -fx-purple: #6f42c1;
+    -fx-pink: #e83e8c;
+    -fx-red: #dc3545;
+    -fx-orange: #fd7e14;
+    -fx-yellow: #ffc107;
+    -fx-green: #28a745;
+    -fx-teal: #20c997;
+    -fx-cyan: #17a2b8;
+    -fx-white: #fff;
+    -fx-gray: #6c757d;
+    -fx-gray-dark: #343a40;
+    -fx-primary: #007bff;
+    -fx-secondary: #6c757d;
+    -fx-success: #28a745;
+    -fx-info: #17a2b8;
+    -fx-warning: #ffc107;
+    -fx-danger: #dc3545;
+    -fx-light: #f8f9fa;
+    -fx-dark: #343a40;
+}
+.root {
+    /* Root variables */
+    accent_color: -fx-light;
+    button_background_color: -fx-dark; /*#333333;*/
+    background_pressed_color: #666666;
+    border_hover_default_color: derive(accent_color, 70%);
+    border_hover_color: #858585;
+    border_hover_selected_color: derive(button_background_color, 70%);
+    default_button_text_color: white;
+    focus_ring_border_color: white;
+    text_color: -fx-light;
+    -fx-background-color: accent_color;
+}
+
+
+/*******************************************************************************
+ *                                                                             *
+ * Button and ToggleButton                                                     *
+ *                                                                             *
+ ******************************************************************************/
+
+.button, .toggle-button {
+    -fx-border-color: transparent;
+    -fx-border-width: 2;
+    -fx-background-radius: 5;
+    -fx-background-insets: 0;
+    -fx-background-color: button_background_color;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 1em; /* 12 */
+    -fx-text-fill: text_color;
+}
+
+.button:hover {
+    -fx-background-color: -fx-light;
+    -fx-text-fill: -fx-dark;
+}

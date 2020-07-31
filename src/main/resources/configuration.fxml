@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<AnchorPane prefHeight="500.0" prefWidth="763.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dysconcsa.app.grafico.controller.ConfigurationController">
+    <children>
+        <Pane layoutX="139.0" prefHeight="50.0" prefWidth="200.0" style="-fx-background-color: #343a40;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Label layoutX="38.0" layoutY="8.0" text="CONFIGURACION GENERAL" textFill="WHITE">
+                    <font>
+                        <Font size="25.0" />
+                    </font>
+                </Label>
+            </children>
+        </Pane>
+        <Label layoutX="46.0" layoutY="88.0" text="Nombre de la empresa:">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <JFXTextField fx:id="txtNombreEmpresa" layoutX="199.0" layoutY="81.0" prefHeight="25.0" prefWidth="156.0" />
+        <Label layoutX="46.0" layoutY="124.0" text="Imagen de la empresa:">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <JFXButton fx:id="btnBuscarImagen" buttonType="RAISED" layoutX="53.0" layoutY="155.0" prefHeight="27.0" prefWidth="36.0" style="-fx-border-color: #6c757d;" text="..." />
+        <ImageView fx:id="imagen" fitHeight="188.0" fitWidth="188.0" layoutX="199.0" layoutY="124.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@/image/company_name.png" />
+            </image>
+        </ImageView>
+        <JFXListView fx:id="listEmpresas" layoutX="470.0" layoutY="58.0" minHeight="300.0" minWidth="266.0" prefHeight="400.0" prefWidth="266.0" />
+        <HBox layoutX="20.0" layoutY="404.0" spacing="15.0">
+            <children>
+                <JFXButton fx:id="btnNew" buttonType="RAISED" style="-fx-border-color: #6c757d;">
+                    <graphic>
+                        <ImageView>
+                            <Image requestedHeight="30" requestedWidth="30" url="@/image/icons8-add-list-30.png" />
+                        </ImageView>
+                    </graphic>
+                </JFXButton>
+            <JFXButton fx:id="btnEditar" buttonType="RAISED" style="-fx-border-color: #6c757d;">
+               <graphic>
+                   <ImageView>
+                       <Image requestedHeight="30" requestedWidth="30" url="@/image/icons8-edit-property-32.png" />
+                   </ImageView>
+               </graphic>
+            </JFXButton>
+                <JFXButton fx:id="btnSave" buttonType="RAISED" style="-fx-border-color: #6c757d;">
+                    <graphic>
+                        <ImageView>
+                            <Image requestedHeight="30" requestedWidth="30" url="@/image/icons8-save-archive-32.png" />
+                        </ImageView>
+                    </graphic>
+                </JFXButton>
+                <JFXButton fx:id="btnDelete" buttonType="RAISED" cancelButton="true" style="-fx-border-color: #6c757d;">
+                    <graphic>
+                        <ImageView>
+                            <Image requestedHeight="30" requestedWidth="30" url="@/image/icons8-trash-can-30.png" />
+                        </ImageView>
+                    </graphic>
+                </JFXButton>
+                <JFXButton fx:id="btnSelection" buttonType="RAISED" defaultButton="true" style="-fx-border-color: #6c757d;">
+                    <graphic>
+                        <ImageView>
+                            <Image url="@/image/icons8-checkmark-30.png" />
+                        </ImageView>
+                    </graphic>
+                </JFXButton>
+                <JFXButton fx:id="btnCancelar" buttonType="RAISED" cancelButton="true" style="-fx-border-color: #6c757d;">
+                    <graphic>
+                        <ImageView>
+                            <Image url="@/image/icons8-cancel-30.png" />
+                        </ImageView>
+                    </graphic>
+                </JFXButton>
+            </children>
+        </HBox>
+      <JFXRadioButton fx:id="radSelected" layoutX="53.0" layoutY="357.0" text="Seleccionar como predeterminado" />
+    </children>
+</AnchorPane>
