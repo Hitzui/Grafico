@@ -32,6 +32,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dysconcsa.app.grafico.util.Utility.showDialog;
 
@@ -638,9 +639,10 @@ public class ArchivoExcel {
         int num_rows = (datosCampoProperties.size() * 3) + 13;
         List<Double> yList = utility.yValues(datosCampoProperties);
         XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 14, 10, lastRow + 1, num_rows);
-        Map<Integer, List<Integer>> mapRotadoX = utility.mapRotadosX;
+        //Map<Integer, List<Integer>> mapRotadoX = utility.mapRotadosX;
         int aux = 0;
         XSSFChart chart = drawing.createChart(anchor);
+
         //chart.setTitleText("N = Golpes / Pie");
         chart.getCTChartSpace().addNewRoundedCorners();
         chart.getCTChartSpace().getRoundedCorners().setVal(false);
@@ -690,51 +692,27 @@ public class ArchivoExcel {
         for (Map.Entry<Integer, Integer> map : seriesGrafico.entrySet()) {
             int i = map.getKey();
             if (i > 0) i += 1;
-            int firstRow = i;
-            int lastRow = map.getValue();
+            int columns = i;
+            int rows = map.getValue();
             XDDFDataSource<Double> xs;
             XDDFNumericalDataSource<Double> ys1;
+            System.out.println(columns + " - " + rows);
             xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
-                    new CellRangeAddress(firstRow, firstRow, 0, lastRow));
+                    new CellRangeAddress(0, rows, columns, columns));
             ys1 = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
-                    new CellRangeAddress(firstRow + 1, firstRow + 1, 0, lastRow));
-
-            XDDFScatterChartData.Series series1 = (XDDFScatterChartData.Series) data.addSeries(xs, ys1);
-            series1.setSmooth(false);
-            series1.setMarkerStyle(MarkerStyle.NONE);
+                    new CellRangeAddress(0, rows, columns + 1, columns + 1));
+            XDDFScatterChartData.Series series = (XDDFScatterChartData.Series) data.addSeries(xs, ys1);
+            series.setSmooth(false);
+            series.setMarkerStyle(MarkerStyle.NONE);
         }
-        /*for (Map.Entry<Integer, List<Integer>> map : mapRotadoX.entrySet()) {
-            int firstRow = aux;
-            int lastRow = map.getValue().size() + aux - 1;
-            XDDFDataSource<Double> xs;
-            XDDFNumericalDataSource<Double> ys1;
-            if (aux == 0) {
-                xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
-                        new CellRangeAddress(0, map.getValue().size() - 1, 3, 3));
-                ys1 = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
-                        new CellRangeAddress(0, map.getValue().size() - 1, 4, 4));
-            } else {
-                xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(firstRow, lastRow, 3, 3));
-                ys1 = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
-                        new CellRangeAddress(firstRow, lastRow, 4, 4));
-            }
-
-            XDDFScatterChartData.Series series1 = (XDDFScatterChartData.Series) data.addSeries(xs, ys1);
-            series1.setSmooth(false);
-            series1.setMarkerStyle(MarkerStyle.NONE);
-            i[0]++;
-            if ((mapRotadoX.size() - 1) == i[0]) {
-                aux = aux + map.getValue().size();
-            } else {
-                aux = aux + map.getValue().size();
-            }
-        }*/
+        System.out.println(data.getCategoryAxis());
+        System.out.println(data.getValueAxes());
         chart.plot(data);
-        /*i[0] = 0;
-        mapRotadoX.forEach((key, value) -> {
-            solidLineSeries(data, i[0]);
-            i[0]++;
-        });*/
+        AtomicInteger i = new AtomicInteger();
+        seriesGrafico.forEach((key, value) -> {
+            solidLineSeries(data, i.get());
+            i.getAndIncrement();
+        });
     }
 
     private void insertImage(Workbook wb, XSSFSheet sheet,
