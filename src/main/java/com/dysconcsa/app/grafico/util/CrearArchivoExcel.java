@@ -61,9 +61,6 @@ public class CrearArchivoExcel {
         List<Double> listaConstante = new ArrayList<>();
         int size = datosCampoProperties.size() * 3;
         for (int j = 1; j <= size; j++) {
-            double profundidadInicial = datosCampoProperties.get(j).getProfundidadInicial();
-            double profundidadFinal = datosCampoProperties.get(j).getProfundidadFinal();
-            double difProfundidad = profundidadFinal-profundidadInicial;
             listaConstante.add(constantePies);
             if (j % 2 == 0) {
                 constantePies = constantePies + 1;

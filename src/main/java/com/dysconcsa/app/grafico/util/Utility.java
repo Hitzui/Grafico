@@ -434,7 +434,6 @@ public class Utility {
             if (cantValues.size() <= 0) {
                 List<Integer> x = new ArrayList<>();
                 List<Double> y = new ArrayList<>();
-                System.out.println("here");
                 x.add(0);
                 y.add(0d);
                 x.addAll(xLista);

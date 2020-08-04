@@ -1,94 +1,39 @@
 package com.dysconcsa.app.grafico.util;
 
-import static com.dysconcsa.app.grafico.util.Utility.showDialog;
-
-import java.awt.EventQueue;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-
+import com.dysconcsa.app.grafico.dao.DaoConfiguration;
+import com.dysconcsa.app.grafico.dao.DaoEmpresa;
+import com.dysconcsa.app.grafico.model.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXTabPane;
+import javafx.application.HostServices;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Tab;
+import javafx.scene.layout.AnchorPane;
 import org.apache.poi.hssf.usermodel.HeaderFooter;
-import org.apache.poi.ss.usermodel.BorderExtent;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Footer;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.PrintSetup;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.PropertyTemplate;
 import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.Units;
-import org.apache.poi.xddf.usermodel.PresetColor;
-import org.apache.poi.xddf.usermodel.XDDFColor;
-import org.apache.poi.xddf.usermodel.XDDFFillProperties;
-import org.apache.poi.xddf.usermodel.XDDFLineProperties;
-import org.apache.poi.xddf.usermodel.XDDFShapeProperties;
-import org.apache.poi.xddf.usermodel.XDDFSolidFillProperties;
-import org.apache.poi.xddf.usermodel.chart.AxisCrosses;
-import org.apache.poi.xddf.usermodel.chart.AxisOrientation;
-import org.apache.poi.xddf.usermodel.chart.AxisPosition;
-import org.apache.poi.xddf.usermodel.chart.ChartTypes;
-import org.apache.poi.xddf.usermodel.chart.MarkerStyle;
-import org.apache.poi.xddf.usermodel.chart.XDDFChartData;
-import org.apache.poi.xddf.usermodel.chart.XDDFDataSource;
-import org.apache.poi.xddf.usermodel.chart.XDDFDataSourcesFactory;
-import org.apache.poi.xddf.usermodel.chart.XDDFNumericalDataSource;
-import org.apache.poi.xddf.usermodel.chart.XDDFScatterChartData;
-import org.apache.poi.xddf.usermodel.chart.XDDFValueAxis;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFChart;
-import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
-import org.apache.poi.xssf.usermodel.XSSFDrawing;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFPrintSetup;
-import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
-import org.openxmlformats.schemas.drawingml.x2006.chart.CTPlotArea;
-import org.openxmlformats.schemas.drawingml.x2006.chart.CTTitle;
-import org.openxmlformats.schemas.drawingml.x2006.chart.CTTx;
-import org.openxmlformats.schemas.drawingml.x2006.chart.CTValAx;
+import org.apache.poi.xddf.usermodel.*;
+import org.apache.poi.xddf.usermodel.chart.*;
+import org.apache.poi.xssf.usermodel.*;
+import org.openxmlformats.schemas.drawingml.x2006.chart.*;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTRegularTextRun;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextBody;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextCharacterProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextParagraph;
 
-import com.dysconcsa.app.grafico.dao.DaoConfiguration;
-import com.dysconcsa.app.grafico.dao.DaoEmpresa;
-import com.dysconcsa.app.grafico.model.AdemeProperty;
-import com.dysconcsa.app.grafico.model.ClasificacionSucsProperty;
-import com.dysconcsa.app.grafico.model.ConfigurationProperty;
-import com.dysconcsa.app.grafico.model.DatosCampoProperty;
-import com.dysconcsa.app.grafico.model.DatosSondeo;
-import com.dysconcsa.app.grafico.model.EmpresaProperty;
-import com.dysconcsa.app.grafico.model.HumedadProperty;
-import com.dysconcsa.app.grafico.model.TrepanoProperty;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.JFXTabPane;
+import java.awt.*;
+import java.io.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javafx.application.HostServices;
-import javafx.collections.ObservableList;
-import javafx.scene.control.Tab;
-import javafx.scene.layout.AnchorPane;
+import static com.dysconcsa.app.grafico.util.Utility.showDialog;
 
 public class ArchivoExcel {
 
@@ -100,6 +45,7 @@ public class ArchivoExcel {
     private ObservableList<TrepanoProperty> trepanoProperties;
     private Utility utility;
     private int lastRow = 29;
+    private Map<Integer, Integer> seriesGrafico = new HashMap<>();
 
     public void setTabPane(JFXTabPane tabPane) {
     }
@@ -556,6 +502,41 @@ public class ArchivoExcel {
 
     private void valoresGrafico(ObservableList<DatosCampoProperty> datosCampoProperties, Workbook wb) {
         try {
+            UpdateUtility updateUtility = new UpdateUtility();
+            Map<Integer, Map<List<Integer>, List<Double>>> listOfPuntosXY = updateUtility.genearXY(datosCampoProperties);
+            Utility utility = new Utility();
+            XSSFSheet sheet = (XSSFSheet) wb.createSheet("Datos");
+            for (Map.Entry<Integer, Map<List<Integer>, List<Double>>> series : listOfPuntosXY.entrySet()) {
+                Map<List<Integer>, List<Double>> value = series.getValue();
+                int i = series.getKey();
+                int size = 0;
+                for (Map.Entry<List<Integer>, List<Double>> puntos : value.entrySet()) {
+                    if (i > 0) i += 1;
+                    List<Integer> x = puntos.getKey();
+                    List<Double> y = puntos.getValue();
+                    size = x.size();
+                    for (int j = 0; j < size; j++) {
+                        Row row = sheet.getRow(j);
+                        if (row == null) row = sheet.createRow(j);
+                        Cell cell = row.createCell(i);
+                        cell.setCellValue(x.get(j));
+                        cell = row.createCell(1 + i);
+                        cell.setCellValue(y.get(j));
+                    }
+                }
+                System.out.println("Get key " + series.getKey() + ", " + size);
+                seriesGrafico.put(series.getKey(), size);
+            }
+            chart((XSSFSheet) wb.getSheetAt(0), sheet, datosCampoProperties, utility);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /*private void valoresGrafico(ObservableList<DatosCampoProperty> datosCampoProperties, Workbook wb) {
+        try {
+            UpdateUtility updateUtility = new UpdateUtility();
+            updateUtility.genearXY(datosCampoProperties);
             Utility utility = new Utility();
             XSSFSheet sheet = (XSSFSheet) wb.createSheet("Datos");
             List<Integer> xValues = utility.xValues(datosCampoProperties);
@@ -606,7 +587,7 @@ public class ArchivoExcel {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
+    }*/
 
     private void borderCellRotate(Cell cell, Workbook wb, Font fontBold, short rotation) {
         CellStyle cellStyleDatos = wb.createCellStyle();
@@ -705,8 +686,24 @@ public class ArchivoExcel {
         leftAxis.setMinimum(0);
         leftAxis.setVisible(false);
         XDDFScatterChartData data = (XDDFScatterChartData) chart.createData(ChartTypes.SCATTER, bottomAxis, leftAxis);
-        final int[] i = {0};
-        for (Map.Entry<Integer, List<Integer>> map : mapRotadoX.entrySet()) {
+        //final int[] i = {0};
+        for (Map.Entry<Integer, Integer> map : seriesGrafico.entrySet()) {
+            int i = map.getKey();
+            if (i > 0) i += 1;
+            int firstRow = i;
+            int lastRow = map.getValue();
+            XDDFDataSource<Double> xs;
+            XDDFNumericalDataSource<Double> ys1;
+            xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
+                    new CellRangeAddress(firstRow, firstRow, 0, lastRow));
+            ys1 = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
+                    new CellRangeAddress(firstRow + 1, firstRow + 1, 0, lastRow));
+
+            XDDFScatterChartData.Series series1 = (XDDFScatterChartData.Series) data.addSeries(xs, ys1);
+            series1.setSmooth(false);
+            series1.setMarkerStyle(MarkerStyle.NONE);
+        }
+        /*for (Map.Entry<Integer, List<Integer>> map : mapRotadoX.entrySet()) {
             int firstRow = aux;
             int lastRow = map.getValue().size() + aux - 1;
             XDDFDataSource<Double> xs;
@@ -731,13 +728,13 @@ public class ArchivoExcel {
             } else {
                 aux = aux + map.getValue().size();
             }
-        }
+        }*/
         chart.plot(data);
-        i[0] = 0;
+        /*i[0] = 0;
         mapRotadoX.forEach((key, value) -> {
             solidLineSeries(data, i[0]);
             i[0]++;
-        });
+        });*/
     }
 
     private void insertImage(Workbook wb, XSSFSheet sheet,
