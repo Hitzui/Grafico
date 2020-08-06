@@ -26,18 +26,22 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTRegularTextRun;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextBody;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextCharacterProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextParagraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dysconcsa.app.grafico.util.Utility.showDialog;
 
+@Component
 public class ArchivoExcel {
 
+    Logger logger = LoggerFactory.getLogger(getClass());
     private ObservableList<AdemeProperty> ademeProperties;
     private ObservableList<DatosCampoProperty> datosCampoProperties;
     private ObservableList<ClasificacionSucsProperty> clasificacionSucsProperties;
@@ -47,6 +51,7 @@ public class ArchivoExcel {
     private Utility utility;
     private int lastRow = 29;
     private Map<Integer, Integer> seriesGrafico = new HashMap<>();
+    UpdateUtility updateUtility = new UpdateUtility();
 
     public void setTabPane(JFXTabPane tabPane) {
     }
@@ -156,7 +161,9 @@ public class ArchivoExcel {
             pt.drawBorders(new CellRangeAddress(10, 11, 14, lastRow), BorderStyle.THIN, BorderExtent.OUTSIDE);
             //cuadro de titulos
             pt.drawBorders(new CellRangeAddress(5, 9, 0, 9), BorderStyle.THIN, BorderExtent.ALL);
-            int size = datosCampoProperties.size() * 3;
+            double profundidadFinal = datosCampoProperties.get(datosCampoProperties.size() - 1).getProfundidadFinal();
+            logger.info("Profundidad final del ultimo golpe: " + profundidadFinal);
+            int size = (int) (profundidadFinal * 2);
             pt.drawBorders(new CellRangeAddress(12, size + 11, 0, lastRow), BorderStyle.THIN, BorderExtent.ALL);
             //borde exterior completo
             pt.drawBorders(new CellRangeAddress(5, size + 11, 0, lastRow), BorderStyle.MEDIUM, BorderExtent.OUTSIDE);
@@ -451,8 +458,8 @@ public class ArchivoExcel {
             int _initRow;
             int size = datosCampoProperties.size() * 3;
             utility.setWb(wb);
-            utility.crearDatosCampo(sheet, datosCampoProperties);
-            utility.clasificacion(sheet, clasificacionSucsProperties, datosSondeos.get(0).getElevacion());
+            utility.crearDatosCampo(sheet, datosCampoProperties,clasificacionSucsProperties);
+            updateUtility.clasificacion(sheet, clasificacionSucsProperties, datosSondeos.get(0).getElevacion());
             utility.datosHumedad(sheet, humedadProperties, size);
             //utility.generateSeriesX(datosCampoProperties);
             utility.datosTrepano(sheet, trepanoProperties, size);
@@ -502,36 +509,30 @@ public class ArchivoExcel {
     }
 
     private void valoresGrafico(ObservableList<DatosCampoProperty> datosCampoProperties, Workbook wb) {
-        try {
-            UpdateUtility updateUtility = new UpdateUtility();
-            Map<Integer, Map<List<Integer>, List<Double>>> listOfPuntosXY = updateUtility.genearXY(datosCampoProperties);
-            Utility utility = new Utility();
-            XSSFSheet sheet = (XSSFSheet) wb.createSheet("Datos");
-            for (Map.Entry<Integer, Map<List<Integer>, List<Double>>> series : listOfPuntosXY.entrySet()) {
-                Map<List<Integer>, List<Double>> value = series.getValue();
-                int i = series.getKey();
-                int size = 0;
-                for (Map.Entry<List<Integer>, List<Double>> puntos : value.entrySet()) {
-                    if (i > 0) i += 1;
-                    List<Integer> x = puntos.getKey();
-                    List<Double> y = puntos.getValue();
-                    size = x.size();
-                    for (int j = 0; j < size; j++) {
-                        Row row = sheet.getRow(j);
-                        if (row == null) row = sheet.createRow(j);
-                        Cell cell = row.createCell(i);
-                        cell.setCellValue(x.get(j));
-                        cell = row.createCell(1 + i);
-                        cell.setCellValue(y.get(j));
-                    }
+        Map<Integer, Map<List<Integer>, List<Double>>> listOfPuntosXY = updateUtility.genearXY(datosCampoProperties);
+        Utility utility = new Utility();
+        XSSFSheet sheet = (XSSFSheet) wb.createSheet("Datos");
+        for (Map.Entry<Integer, Map<List<Integer>, List<Double>>> series : listOfPuntosXY.entrySet()) {
+            Map<List<Integer>, List<Double>> value = series.getValue();
+            int i = series.getKey();
+            int size = 0;
+            for (Map.Entry<List<Integer>, List<Double>> puntos : value.entrySet()) {
+                if (i > 0) i += 1;
+                List<Integer> x = puntos.getKey();
+                List<Double> y = puntos.getValue();
+                size = x.size();
+                for (int j = 0; j < size; j++) {
+                    Row row = sheet.getRow(j);
+                    if (row == null) row = sheet.createRow(j);
+                    Cell cell = row.createCell(i);
+                    cell.setCellValue(x.get(j));
+                    cell = row.createCell(1 + i);
+                    cell.setCellValue(y.get(j));
                 }
-                System.out.println("Get key " + series.getKey() + ", " + size);
-                seriesGrafico.put(series.getKey(), size);
             }
-            chart((XSSFSheet) wb.getSheetAt(0), sheet, datosCampoProperties, utility);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            seriesGrafico.put(series.getKey(), size);
         }
+        createChart((XSSFSheet) wb.getSheetAt(0), sheet, datosCampoProperties, utility);
     }
 
     /*private void valoresGrafico(ObservableList<DatosCampoProperty> datosCampoProperties, Workbook wb) {
@@ -627,22 +628,21 @@ public class ArchivoExcel {
         CTTextParagraph para = rich.addNewP();
         CTRegularTextRun r = para.addNewR();
         ctTextCharacterProperties = ctChart.getTitle().getTx().getRich().addNewP().addNewPPr().addNewDefRPr();
-        ctTextCharacterProperties.setSz(1800);
+        ctTextCharacterProperties.setSz(1600);
         ctTextCharacterProperties.setB(true);
         r.setRPr(ctTextCharacterProperties);
         r.setT(title);
     }
 
-    private void chart(XSSFSheet sheet, XSSFSheet sheet2, ObservableList<DatosCampoProperty> datosCampoProperties,
-                       Utility utility) {
+    private void createChart(XSSFSheet sheet, XSSFSheet sheet2, ObservableList<DatosCampoProperty> datosCampoProperties,
+                             Utility utility) {
         XSSFDrawing drawing = sheet.createDrawingPatriarch();
-        int num_rows = (datosCampoProperties.size() * 3) + 13;
+        DatosCampoProperty datosCampoProperty = datosCampoProperties.get(datosCampoProperties.size() - 1);
+        int num_rows = (int) ((datosCampoProperty.getProfundidadFinal() * 2) + 13);
         List<Double> yList = utility.yValues(datosCampoProperties);
         XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 14, 10, lastRow + 1, num_rows);
         //Map<Integer, List<Integer>> mapRotadoX = utility.mapRotadosX;
-        int aux = 0;
         XSSFChart chart = drawing.createChart(anchor);
-
         //chart.setTitleText("N = Golpes / Pie");
         chart.getCTChartSpace().addNewRoundedCorners();
         chart.getCTChartSpace().getRoundedCorners().setVal(false);
@@ -694,25 +694,14 @@ public class ArchivoExcel {
             if (i > 0) i += 1;
             int columns = i;
             int rows = map.getValue();
-            XDDFDataSource<Double> xs;
-            XDDFNumericalDataSource<Double> ys1;
-            System.out.println(columns + " - " + rows);
-            xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
-                    new CellRangeAddress(0, rows, columns, columns));
-            ys1 = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
-                    new CellRangeAddress(0, rows, columns + 1, columns + 1));
-            XDDFScatterChartData.Series series = (XDDFScatterChartData.Series) data.addSeries(xs, ys1);
+            XDDFNumericalDataSource<Double> xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns, columns));
+            XDDFNumericalDataSource<Double> ys = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns + 1, columns + 1));
+            XDDFScatterChartData.Series series = (XDDFScatterChartData.Series) data.addSeries(xs, ys);
             series.setSmooth(false);
             series.setMarkerStyle(MarkerStyle.NONE);
         }
-        System.out.println(data.getCategoryAxis());
-        System.out.println(data.getValueAxes());
         chart.plot(data);
-        AtomicInteger i = new AtomicInteger();
-        seriesGrafico.forEach((key, value) -> {
-            solidLineSeries(data, i.get());
-            i.getAndIncrement();
-        });
+        solidLineSeries(data);
     }
 
     private void insertImage(Workbook wb, XSSFSheet sheet,
@@ -736,6 +725,23 @@ public class ArchivoExcel {
             pict.resize(6, 3);
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    private void solidLineSeries(XDDFChartData data) {
+        XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(PresetColor.BLACK));
+        XDDFFillProperties fillProperties = new XDDFSolidFillProperties(XDDFColor.from(PresetColor.RED));
+        XDDFLineProperties line = new XDDFLineProperties();
+        line.setFillProperties(fill);
+        line.setWidth(Units.pixelToEMU(6));
+        for (XDDFChartData.Series values : data.getSeries()) {
+            XDDFShapeProperties properties = values.getShapeProperties();
+            if (properties == null) {
+                properties = new XDDFShapeProperties();
+            }
+            properties.setFillProperties(fillProperties);
+            properties.setLineProperties(line);
+            values.setShapeProperties(properties);
         }
     }
 

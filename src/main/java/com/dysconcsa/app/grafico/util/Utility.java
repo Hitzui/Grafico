@@ -37,7 +37,7 @@ public class Utility {
     private XSSFWorkbook wb;
     Map<Integer, List<Integer>> mapRotadosX;
     Map<Integer, List<Double>> mapRotadosY;
-    private int initRow = 12;
+    public int initRow = 12;
 
     void setWb(Workbook wb) {
         this.wb = (XSSFWorkbook) wb;
@@ -119,15 +119,20 @@ public class Utility {
         return result;
     }
 
-    void crearDatosCampo(XSSFSheet sheet, ObservableList<DatosCampoProperty> datosCampoProperties) {
+    void crearDatosCampo(XSSFSheet sheet, ObservableList<DatosCampoProperty> datosCampoProperties, ObservableList<ClasificacionSucsProperty> clasificacionSucsProperties) {
         XSSFCellStyle cellStyleCenter = customCellStyle(wb, HorizontalAlignment.CENTER, (short) 22);
         CellStyle cellStyleLeft = customCellStyle(wb, HorizontalAlignment.LEFT, (short) 22);
         CellStyle cellStyleRight = customCellStyle(wb, HorizontalAlignment.RIGHT, (short) 22);
         CellStyle cellStyleCenter2 = customCellStyle(wb, HorizontalAlignment.CENTER, (short) 34);
+        int numCeldaAnterior = initRow;
+        ClasificacionSucsProperty clasificacionSucsProperty = clasificacionSucsProperties.stream().findFirst().orElse(null);
+        DaoSuelos daoSuelos = new DaoSuelos();
+        assert clasificacionSucsProperty != null;
+        SuelosProperty suelosProperty = daoSuelos.findById(clasificacionSucsProperty.getTipoSuelo());
         for (DatosCampoProperty dato : datosCampoProperties) {
-            Row row = sheet.getRow(initRow);
+            Row row = sheet.getRow(numCeldaAnterior);
             if (row == null) {
-                row = sheet.createRow(initRow);
+                row = sheet.createRow(numCeldaAnterior);
             }
             Cell cell = row.createCell(10);
             if (dato.getRecobro() == 0) {
@@ -159,9 +164,9 @@ public class Utility {
                 row = sheet.createRow(initRow);
             }
             cell = row.createCell(11);
-            if (dato.getGolpe1() == 0 && dato.getGolpe2() == 0 && dato.getGolpe3() == 0) {
-                cell.setCellValue("");
+            if (suelosProperty.getNombre().toLowerCase().equals("rotado")) {
                 cell = row.createCell(16);
+                cell.setCellValue("");
                 cell.setCellValue("R O T A D O");
                 sheet.addMergedRegion(new CellRangeAddress(initRow, initRow, 16, 19));
                 cell.setCellStyle(cellStyleLeft);
@@ -373,7 +378,7 @@ public class Utility {
         }
     }
 
-    private XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize) {
+    public XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize) {
         XSSFCellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();
         font.setBold(true);
@@ -385,7 +390,7 @@ public class Utility {
         return cellStyle;
     }
 
-    private XSSFCellStyle customCellStyle(XSSFWorkbook wb) {
+    public XSSFCellStyle customCellStyle(XSSFWorkbook wb) {
         XSSFCellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();
         font.setBold(true);
@@ -429,8 +434,6 @@ public class Utility {
                     if (cantValues.size() != cantZeros.size()) cantValues.add(xLista.size() - 1);
                 }
             }
-            System.out.println("Values list > " + cantValues);
-            System.out.println("Zeros list > " + cantZeros);
             if (cantValues.size() <= 0) {
                 List<Integer> x = new ArrayList<>();
                 List<Double> y = new ArrayList<>();
@@ -456,12 +459,9 @@ public class Utility {
                     } else {
                         y.add(yLista.get(cantZeros.get(j) - 1));
                     }
-                    System.out.println("From index: " + fromIndex + " > To index: " + toIndex);
                     List<Double> tempList = yLista.subList(fromIndex, toIndex);
-                    System.out.println("Temp list: " + tempList);
                     y.addAll(tempList);
                     List<Integer> tempList2 = xLista.subList(fromIndex, toIndex);
-                    System.out.println("Temp list 2: " + tempList2);
                     x.addAll(tempList2);
                     x.add(0);
                     x.add(0);
@@ -512,7 +512,7 @@ public class Utility {
     }
 
     @SuppressWarnings("unused")
-    private CellStyle createBackgroundColorXSSFCellStyle(Workbook wb, IndexedColors color, FillPatternType foreGround) {
+    public CellStyle createBackgroundColorXSSFCellStyle(Workbook wb, IndexedColors color, FillPatternType foreGround) {
         CellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();
         font.setBold(true);

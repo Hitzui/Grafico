@@ -1,13 +1,12 @@
 package com.dysconcsa.app.grafico.controller;
 
 import com.dysconcsa.app.grafico.dao.DaoConfiguration;
+import com.dysconcsa.app.grafico.dao.DaoSuelos;
 import com.dysconcsa.app.grafico.model.ConfigurationProperty;
+import com.dysconcsa.app.grafico.model.SuelosProperty;
 import com.dysconcsa.app.grafico.util.Utility;
 import com.dysconcsa.app.grafico.util.Variables;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXListView;
-import com.jfoenix.controls.JFXRadioButton;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,12 +18,15 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
+
 @Component
 public class ConfigurationController {
 
     private String pathImagen = "";
     private final String _title = "Configuracion";
     int aux;
+    private ObservableList<SuelosProperty> suelosProperties = FXCollections.observableArrayList();
     private final ObservableList<ConfigurationProperty> configurationProperties = FXCollections.observableArrayList();
     ConfigurationProperty selectedConfiguration;
 
@@ -61,7 +63,12 @@ public class ConfigurationController {
     private JFXListView<ConfigurationProperty> listEmpresas;
 
     @FXML
+    private JFXComboBox<SuelosProperty> cmbSuelosBaseSubBase;
+
+    @FXML
     private void initialize() {
+        fillSuelosProperties();
+        cmbSuelosBaseSubBase.setItems(suelosProperties);
         txtNombreEmpresa.setDisable(true);
         btnBuscarImagen.setDisable(true);
         enableButtons(false, false, true, true, true);
@@ -210,5 +217,13 @@ public class ConfigurationController {
         btnSave.setDisable(save);
         btnDelete.setDisable(delete);
         btnCancelar.setDisable(cancel);
+    }
+    void fillSuelosProperties(){
+        DaoSuelos daoSuelos = new DaoSuelos();
+        try {
+            suelosProperties.addAll(daoSuelos.findAll());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 }

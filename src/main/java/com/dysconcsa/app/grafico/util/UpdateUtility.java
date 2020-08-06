@@ -1,6 +1,16 @@
 package com.dysconcsa.app.grafico.util;
 
+import com.dysconcsa.app.grafico.dao.DaoSuelos;
+import com.dysconcsa.app.grafico.model.ClasificacionSucsProperty;
 import com.dysconcsa.app.grafico.model.DatosCampoProperty;
+import com.dysconcsa.app.grafico.model.SuelosProperty;
+import javafx.collections.ObservableList;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,23 +28,113 @@ import java.util.Map;
 @Component
 public class UpdateUtility {
 
+    Utility utility = new Utility();
     Logger logger = LoggerFactory.getLogger(getClass());
     List<Double> yValues = new ArrayList<>();
     List<Integer> xValues = new ArrayList<>();
+
     public UpdateUtility() {
     }
 
-    public Map<Integer, Map<List<Integer>, List<Double>>> genearXY(@org.jetbrains.annotations.NotNull List<DatosCampoProperty> datosCampoProperties) {
+    public void clasificacion(XSSFSheet sheet, ObservableList<ClasificacionSucsProperty> clasificacionSucsProperties, Double elevacion) {
+        if (clasificacionSucsProperties.size() <= 0) {
+            return;
+        }
+        DaoSuelos daoSuelos = new DaoSuelos();
+        XSSFWorkbook wb = sheet.getWorkbook();
+        DataFormat format = wb.createDataFormat();
+        double profundidadInicial = 0d;
+        int numCeldaAnterior = utility.initRow;
+        double espesor;
+        double acumProf = 0.0;
+        double acum_espesor = 0d;
+        CellStyle style;
+        CellStyle styleFormat = utility.customCellStyle(wb, HorizontalAlignment.CENTER, (short) 22);
+        XSSFCellStyle cellStyle = utility.customCellStyle(wb, HorizontalAlignment.CENTER, (short) 22);
+        XSSFCellStyle cellStyleBottom = utility.customCellStyle(wb);
+        for (ClasificacionSucsProperty clasificacion : clasificacionSucsProperties) {
+            logger.info("Num celda: " + numCeldaAnterior);
+            //ejemplo de rango de celdas para los valores de cotas, profundidad y estrato
+            double profundidad = clasificacion.getProfundidad();
+            double difProfundidad = profundidad - profundidadInicial;
+            int cantCelda = (int) (difProfundidad / 0.5);
+            int valorActual = numCeldaAnterior + cantCelda - 1;
+            logger.info("--------- # de celda: " + valorActual);
+            espesor = Math.abs(profundidad - acumProf) * 0.3048;
+            acum_espesor += espesor;
+            elevacion -= espesor;
+            //rango de celda donde van los valores
+            //rango de celda para el valor de Cota
+            XSSFRow row = getRow(sheet, numCeldaAnterior);
+            // cota
+            Cell cell = row.createCell(0);
+            sheet.setColumnWidth(cell.getColumnIndex(), 3000);
+            cell.setCellValue(elevacion);
+            cell.setCellStyle(cellStyleBottom);
+            // profundidad
+            cell = row.createCell(1);
+            cell.setCellValue(acum_espesor);
+            cell.setCellStyle(cellStyleBottom);
+            // estrato
+            cell = row.createCell(2);
+            cell.setCellValue(espesor);
+            cell.setCellStyle(cellStyle);
+            SuelosProperty suelo = daoSuelos.findById(clasificacion.getTipoSuelo());
+            // ingreso de las imagenes del tipo de suelo
+            XSSFCell cellSucs = row.createCell(5);
+            style = utility.createBackgroundColorXSSFCellStyle(wb, clasificacion.getColor(), clasificacion.getPattern());
+            cellSucs.setCellStyle(style);
+            cellSucs.setCellValue(suelo.getSimbolo().toUpperCase());
+            cell = row.createCell(6);
+            cell.setCellStyle(cellStyle);
+            cell.setCellValue(clasificacion.getDescripcion() + "\n(" + suelo.getSimbolo().toUpperCase() + ")");
+            cellStyle.setWrapText(true);
+            cell.setCellStyle(cellStyle);
+            Cell cellLimite = row.createCell(7);
+            if (clasificacion.getLimiteLiquido() == 0) {
+                cellLimite.setCellValue("");
+                sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 11, 11));
+            } else {
+                styleFormat.setDataFormat(format.getFormat("0"));
+                cellLimite.setCellValue(clasificacion.getLimiteLiquido());
+            }
+            cellLimite.setCellStyle(styleFormat);
+            Cell cellIndice = row.createCell(8);
+            if (clasificacion.getIndicePlasticidad() == 0) {
+                cellIndice.setCellValue("");
+            } else {
+                cellIndice.setCellValue(clasificacion.getIndicePlasticidad());
+            }
+            cellIndice.setCellStyle(styleFormat);
+            sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 0, 0));
+            sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 1, 1));
+            sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 2, 2));
+            sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 5, 5));
+            sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 6, 6));
+            sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 7, 7));
+            sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 8, 8));
+            acumProf = clasificacion.getProfundidad();
+            profundidadInicial = profundidad;
+            numCeldaAnterior = valorActual + 1;
+        }
+    }
+
+    private XSSFRow getRow(XSSFSheet sheet, int index) {
+        XSSFRow temp = sheet.getRow(index);
+        if (temp == null) {
+            temp = sheet.createRow(index);
+        }
+        return temp;
+    }
+
+    public Map<Integer, Map<List<Integer>, List<Double>>>   genearXY(List<DatosCampoProperty> datosCampoProperties) {
         double paso = 0.5;
         int aux = 0;
-
         Map<Integer, Map<List<Integer>, List<Double>>> valores = new HashMap<>();
         for (DatosCampoProperty dato : datosCampoProperties) {
-            //Optional<ClasificacionSucsProperty> first = clasificacionSucsProperties.stream().filter(c -> c.getProfundidad() == dato.getProfundidadFinal()).findFirst();
             double profundidadInicial = dato.getProfundidadInicial();
             double profundidadFinal = dato.getProfundidadFinal();
             //celda inicial donde inicia el valor del recobro
-            double getFirstCellRecobro = profundidadInicial * 2;
             //celda final donde termina el valor recobro
             double getLastCellRecrobro = profundidadFinal * 2;
             double dif = profundidadFinal - profundidadInicial;
