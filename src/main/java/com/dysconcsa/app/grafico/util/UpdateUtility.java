@@ -15,10 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * <p>Actualizacion del archivo que maneja los datos para generar el excel con su grafico</p>
@@ -28,15 +26,17 @@ import java.util.Map;
 @Component
 public class UpdateUtility {
 
+    private final PropertiesFile propertiesFile;
     Utility utility = new Utility();
     Logger logger = LoggerFactory.getLogger(getClass());
     List<Double> yValues = new ArrayList<>();
     List<Integer> xValues = new ArrayList<>();
 
     public UpdateUtility() {
+        propertiesFile = new PropertiesFile();
     }
 
-    public void clasificacion(XSSFSheet sheet, ObservableList<ClasificacionSucsProperty> clasificacionSucsProperties, Double elevacion) {
+    public void clasificacion(XSSFSheet sheet, ObservableList<ClasificacionSucsProperty> clasificacionSucsProperties, Double elevacion) throws SQLException {
         if (clasificacionSucsProperties.size() <= 0) {
             return;
         }
@@ -52,14 +52,15 @@ public class UpdateUtility {
         CellStyle styleFormat = utility.customCellStyle(wb, HorizontalAlignment.CENTER, (short) 22);
         XSSFCellStyle cellStyle = utility.customCellStyle(wb, HorizontalAlignment.CENTER, (short) 22);
         XSSFCellStyle cellStyleBottom = utility.customCellStyle(wb);
+        Optional<SuelosProperty> rotado = daoSuelos.findAll().stream().filter(suelo -> suelo.getNombre().equals("rotado")).findAny();
+        double profundidadInicialSuelos = 0d;
+        int cbsb = Integer.parseInt(propertiesFile.getProperty("cbsb"));
         for (ClasificacionSucsProperty clasificacion : clasificacionSucsProperties) {
-            logger.info("Num celda: " + numCeldaAnterior);
             //ejemplo de rango de celdas para los valores de cotas, profundidad y estrato
             double profundidad = clasificacion.getProfundidad();
             double difProfundidad = profundidad - profundidadInicial;
-            int cantCelda = (int) (difProfundidad / 0.5);
+            int cantCelda = (int) (difProfundidad * 2);
             int valorActual = numCeldaAnterior + cantCelda - 1;
-            logger.info("--------- # de celda: " + valorActual);
             espesor = Math.abs(profundidad - acumProf) * 0.3048;
             acum_espesor += espesor;
             elevacion -= espesor;
@@ -80,6 +81,15 @@ public class UpdateUtility {
             cell.setCellValue(espesor);
             cell.setCellStyle(cellStyle);
             SuelosProperty suelo = daoSuelos.findById(clasificacion.getTipoSuelo());
+            if (rotado.isPresent()) {
+                if (rotado.get().getID() == suelo.getID()) {
+                    cell = row.getCell(16);
+                    if (cell == null) cell = row.createCell(16);
+                    cell.setCellValue("R O T A D O");
+                    cell.setCellStyle(cellStyle);
+                    sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, numCeldaAnterior, 16, 19));
+                }
+            }
             // ingreso de las imagenes del tipo de suelo
             XSSFCell cellSucs = row.createCell(5);
             style = utility.createBackgroundColorXSSFCellStyle(wb, clasificacion.getColor(), clasificacion.getPattern());
@@ -93,7 +103,7 @@ public class UpdateUtility {
             Cell cellLimite = row.createCell(7);
             if (clasificacion.getLimiteLiquido() == 0) {
                 cellLimite.setCellValue("");
-                sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 11, 11));
+                //sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 11, 11));
             } else {
                 styleFormat.setDataFormat(format.getFormat("0"));
                 cellLimite.setCellValue(clasificacion.getLimiteLiquido());
@@ -127,7 +137,7 @@ public class UpdateUtility {
         return temp;
     }
 
-    public Map<Integer, Map<List<Integer>, List<Double>>>   genearXY(List<DatosCampoProperty> datosCampoProperties) {
+    public Map<Integer, Map<List<Integer>, List<Double>>> genearXY(List<DatosCampoProperty> datosCampoProperties) {
         double paso = 0.5;
         int aux = 0;
         Map<Integer, Map<List<Integer>, List<Double>>> valores = new HashMap<>();
@@ -209,4 +219,5 @@ public class UpdateUtility {
         yValues.clear();
         return xyDatos;
     }
+
 }

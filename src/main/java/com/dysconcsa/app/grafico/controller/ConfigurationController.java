@@ -4,6 +4,7 @@ import com.dysconcsa.app.grafico.dao.DaoConfiguration;
 import com.dysconcsa.app.grafico.dao.DaoSuelos;
 import com.dysconcsa.app.grafico.model.ConfigurationProperty;
 import com.dysconcsa.app.grafico.model.SuelosProperty;
+import com.dysconcsa.app.grafico.util.PropertiesFile;
 import com.dysconcsa.app.grafico.util.Utility;
 import com.dysconcsa.app.grafico.util.Variables;
 import com.jfoenix.controls.*;
@@ -12,10 +13,14 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -26,9 +31,13 @@ public class ConfigurationController {
     private String pathImagen = "";
     private final String _title = "Configuracion";
     int aux;
-    private ObservableList<SuelosProperty> suelosProperties = FXCollections.observableArrayList();
+    private final ObservableList<SuelosProperty> suelosProperties = FXCollections.observableArrayList();
     private final ObservableList<ConfigurationProperty> configurationProperties = FXCollections.observableArrayList();
     ConfigurationProperty selectedConfiguration;
+    DaoSuelos daoSuelos = new DaoSuelos();
+
+    @Autowired
+    PropertiesFile propertiesFile;
 
     @FXML
     public JFXRadioButton radSelected;
@@ -60,14 +69,22 @@ public class ConfigurationController {
     @FXML
     private JFXButton btnCancelar;
     @FXML
+    private JFXButton btnGuardarSuelo;
+
+    @FXML
     private JFXListView<ConfigurationProperty> listEmpresas;
 
     @FXML
     private JFXComboBox<SuelosProperty> cmbSuelosBaseSubBase;
+    @FXML
+    private Label lblSelectedValue;
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @FXML
     private void initialize() {
         fillSuelosProperties();
+        PropertiesFile propertiesFile = new PropertiesFile();
         cmbSuelosBaseSubBase.setItems(suelosProperties);
         txtNombreEmpresa.setDisable(true);
         btnBuscarImagen.setDisable(true);
@@ -76,6 +93,9 @@ public class ConfigurationController {
         loadData();
         DaoConfiguration daoConfiguration = new DaoConfiguration();
         //imageLoader.updateImageView(imagen, String.valueOf(getClass().getResource("/image/logo.jpg").toURI()));
+        btnGuardarSuelo.setOnAction(action -> {
+            propertiesFile.saveParamChanges("cbsb", String.valueOf(cmbSuelosBaseSubBase.getValue().getID()));
+        });
         btnNew.setOnAction(event -> {
             Variables.getInstance().selectedConfiguration = null;
             txtNombreEmpresa.clear();
@@ -198,6 +218,13 @@ public class ConfigurationController {
                 radSelected.setSelected(selectedConfiguration.isSelected());
             }
         });
+        if (propertiesFile.containsKey("cbsb")) {
+            int idsuelo = Integer.parseInt(propertiesFile.getProperty("cbsb"));
+            SuelosProperty suelosProperty = daoSuelos.findById(idsuelo);
+            logger.info(suelosProperty.getNombre());
+            lblSelectedValue.setText(suelosProperty.getNombre());
+        }
+        //cmbSuelosBaseSubBase.valueProperty().addListener(((observable, oldValue, newValue) -> lblSelectedValue.setText(newValue.getNombre())));
     }
 
     void loadData() {
@@ -218,8 +245,8 @@ public class ConfigurationController {
         btnDelete.setDisable(delete);
         btnCancelar.setDisable(cancel);
     }
-    void fillSuelosProperties(){
-        DaoSuelos daoSuelos = new DaoSuelos();
+
+    void fillSuelosProperties() {
         try {
             suelosProperties.addAll(daoSuelos.findAll());
         } catch (SQLException throwables) {

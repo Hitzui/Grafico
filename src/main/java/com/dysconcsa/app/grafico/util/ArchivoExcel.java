@@ -205,6 +205,7 @@ public class ArchivoExcel {
             endStyle.setAlignment(HorizontalAlignment.CENTER);
             endCell.setCellValue("Fin del Sondeo No. " + datosSondeo.getSondeoNumero());
             endCell.setCellStyle(endStyle);
+            //pie de pagina, indicando fil del sondeo
             sheet.addMergedRegion(new CellRangeAddress(size + 13, size + 13, 0, lastRow));
             try (OutputStream fileOut = new FileOutputStream(file)) {
                 wb.write(fileOut);

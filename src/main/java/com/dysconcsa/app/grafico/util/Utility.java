@@ -23,13 +23,13 @@ import javafx.stage.StageStyle;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
 
 @Component
 public class Utility {
@@ -38,6 +38,8 @@ public class Utility {
     Map<Integer, List<Integer>> mapRotadosX;
     Map<Integer, List<Double>> mapRotadosY;
     public int initRow = 12;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final PropertiesFile propertiesFile = new PropertiesFile();
 
     void setWb(Workbook wb) {
         this.wb = (XSSFWorkbook) wb;
@@ -119,21 +121,38 @@ public class Utility {
         return result;
     }
 
-    void crearDatosCampo(XSSFSheet sheet, ObservableList<DatosCampoProperty> datosCampoProperties, ObservableList<ClasificacionSucsProperty> clasificacionSucsProperties) {
+    void crearDatosCampo(XSSFSheet sheet, ObservableList<DatosCampoProperty> datosCampoProperties, ObservableList<ClasificacionSucsProperty> clasificacionSucsProperties) throws SQLException {
         XSSFCellStyle cellStyleCenter = customCellStyle(wb, HorizontalAlignment.CENTER, (short) 22);
         CellStyle cellStyleLeft = customCellStyle(wb, HorizontalAlignment.LEFT, (short) 22);
         CellStyle cellStyleRight = customCellStyle(wb, HorizontalAlignment.RIGHT, (short) 22);
         CellStyle cellStyleCenter2 = customCellStyle(wb, HorizontalAlignment.CENTER, (short) 34);
         int numCeldaAnterior = initRow;
-        ClasificacionSucsProperty clasificacionSucsProperty = clasificacionSucsProperties.stream().findFirst().orElse(null);
+        int cbsb = Integer.parseInt(propertiesFile.getProperty("cbsb"));
         DaoSuelos daoSuelos = new DaoSuelos();
-        assert clasificacionSucsProperty != null;
-        SuelosProperty suelosProperty = daoSuelos.findById(clasificacionSucsProperty.getTipoSuelo());
+        double profundidadCBSB =0d;
+        Optional<ClasificacionSucsProperty> any = clasificacionSucsProperties.stream()
+                .filter(f -> f.getTipoSuelo() == cbsb).findAny();
+        if (any.isPresent()) {
+            SuelosProperty suelosProperty = daoSuelos.findById(cbsb);
+            ClasificacionSucsProperty clasificacionSucsProperty = any.get();
+            if (suelosProperty != null) {
+                profundidadCBSB = clasificacionSucsProperty.getProfundidad();
+                int dif = (int) (clasificacionSucsProperty.getProfundidad() * 2);
+                logger.info("Tamano de cbsb: " + dif);
+                sheet.addMergedRegion(new CellRangeAddress(initRow, initRow + dif - 1, 10, 10));
+                sheet.addMergedRegion(new CellRangeAddress(initRow, initRow + dif - 1, 11, 11));
+                sheet.addMergedRegion(new CellRangeAddress(initRow, initRow + dif - 1, 12, 12));
+                numCeldaAnterior = initRow + dif;
+            }
+        }
         for (DatosCampoProperty dato : datosCampoProperties) {
+            if(profundidadCBSB == dato.getProfundidadFinal()) continue;
+            logger.info("Inicio de celda " + numCeldaAnterior);
             Row row = sheet.getRow(numCeldaAnterior);
             if (row == null) {
                 row = sheet.createRow(numCeldaAnterior);
             }
+            //----------------- Recobro ------------------------------
             Cell cell = row.createCell(10);
             if (dato.getRecobro() == 0) {
                 cell.setCellValue("");
@@ -141,13 +160,15 @@ public class Utility {
                 cell.setCellValue(dato.getRecobro() + "\"");
             }
             cell.setCellStyle(cellStyleCenter);
-            sheet.addMergedRegion(new CellRangeAddress(initRow, initRow + 2, 10, 10));
+            sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, numCeldaAnterior + 2, 10, 10));
+            //--------------------Golpe 1 ----------------------------
             cell = row.createCell(11);
             if (dato.getGolpe1() == 0) {
                 cell.setCellValue("");
             } else {
                 cell.setCellValue(dato.getGolpe1());
             }
+            //----------------- Golpe 1 * 2 --------------------------
             cell.setCellStyle(cellStyleLeft);
             cell = row.createCell(12);
             int multi = dato.getGolpe1() * 2;
@@ -158,17 +179,17 @@ public class Utility {
             }
             cell.setCellStyle(cellStyleLeft);
             // next row + 1
-            initRow += 1;
-            row = sheet.getRow(initRow);
+            numCeldaAnterior += 1;
+            row = sheet.getRow(numCeldaAnterior);
             if (row == null) {
-                row = sheet.createRow(initRow);
+                row = sheet.createRow(numCeldaAnterior);
             }
             cell = row.createCell(11);
-            if (suelosProperty.getNombre().toLowerCase().equals("rotado")) {
+            if (dato.getGolpe2() == 0) {
                 cell = row.createCell(16);
                 cell.setCellValue("");
-                cell.setCellValue("R O T A D O");
-                sheet.addMergedRegion(new CellRangeAddress(initRow, initRow, 16, 19));
+                //cell.setCellValue("R O T A D O");
+                //sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, numCeldaAnterior, 16, 19));
                 cell.setCellStyle(cellStyleLeft);
             } else {
                 cell.setCellValue(dato.getGolpe2());
@@ -182,12 +203,12 @@ public class Utility {
                 cell.setCellValue(suma);
             }
             cell.setCellStyle(cellStyleCenter2);
-            sheet.addMergedRegion(new CellRangeAddress(initRow, initRow + 1, 12, 12));
+            sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, numCeldaAnterior + 1, 12, 12));
             // next row + 1
-            initRow += 1;
-            row = sheet.getRow(initRow);
+            numCeldaAnterior += 1;
+            row = sheet.getRow(numCeldaAnterior);
             if (row == null) {
-                row = sheet.createRow(initRow);
+                row = sheet.createRow(numCeldaAnterior);
             }
             cell = row.createCell(11);
             if (dato.getGolpe3() == 0) {
@@ -196,16 +217,16 @@ public class Utility {
                 cell.setCellValue(dato.getGolpe3());
             }
             cell.setCellStyle(cellStyleRight);
-            initRow += 1;
+            numCeldaAnterior += 1;
         }
         // establecer datos de la celda profundidad
-        initRow = 12;
+        numCeldaAnterior = initRow;
         int count = 1;
         int size = datosCampoProperties.size() * 3;
         for (int j = 1; j <= size; j++) {
-            Row row = sheet.getRow(initRow);
+            Row row = sheet.getRow(numCeldaAnterior);
             if (row == null) {
-                row = sheet.createRow(initRow);
+                row = sheet.createRow(numCeldaAnterior);
             }
             Cell cell = row.createCell(13);
             if (j % 2 == 0) {
@@ -214,9 +235,8 @@ public class Utility {
             }
 
             cell.setCellStyle(cellStyleCenter);
-            initRow += 1;
+            numCeldaAnterior += 1;
         }
-        initRow = 12;
     }
 
     void clasificacion(XSSFSheet sheet, ObservableList<ClasificacionSucsProperty> clasificacionSucsProperties, Double elevacion) {
