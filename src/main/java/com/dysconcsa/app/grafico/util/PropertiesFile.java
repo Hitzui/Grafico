@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DefaultPropertiesPersister;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,6 +21,12 @@ public class PropertiesFile {
 
     public PropertiesFile() {
         try {
+            File file = new File("c:\\config");
+            if (!file.exists()) {
+                boolean mkd= file.mkdir();
+                if(mkd) logger.info("Se ha creado el direcctorio de configuracion.");
+                else logger.warn("No se pudo crear el directorio, revise la informacion pertinente");
+            }
             FileInputStream in = new FileInputStream("c:\\config\\appProperties.properties");
             logger.info(String.valueOf(in));
             configProp.load(in);
@@ -27,7 +34,6 @@ public class PropertiesFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public String getProperty(String key) {

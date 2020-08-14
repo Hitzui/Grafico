@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -29,6 +30,7 @@ public class UpdateUtility {
     private final PropertiesFile propertiesFile;
     Utility utility = new Utility();
     Logger logger = LoggerFactory.getLogger(getClass());
+    private final DecimalFormat df2 = new DecimalFormat("#.##");
     List<Double> yValues = new ArrayList<>();
     List<Integer> xValues = new ArrayList<>();
 
@@ -70,17 +72,31 @@ public class UpdateUtility {
             // cota
             Cell cell = row.createCell(0);
             sheet.setColumnWidth(cell.getColumnIndex(), 3000);
-            cell.setCellValue(elevacion);
+            cell.setCellValue(Double.parseDouble(df2.format(elevacion)));
             cell.setCellStyle(cellStyleBottom);
             // profundidad
             cell = row.createCell(1);
-            cell.setCellValue(acum_espesor);
+            cell.setCellValue(Double.parseDouble(df2.format(acum_espesor)));
             cell.setCellStyle(cellStyleBottom);
             // estrato
             cell = row.createCell(2);
-            cell.setCellValue(espesor);
+            cell.setCellValue(Double.parseDouble(df2.format(espesor)));
             cell.setCellStyle(cellStyle);
             SuelosProperty suelo = daoSuelos.findById(clasificacion.getTipoSuelo());
+            Cell cellLimite = row.createCell(7);
+            if (clasificacion.getLimiteLiquido() == 0) {
+                cellLimite.setCellValue("");
+                //sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 11, 11));
+            } else {
+                styleFormat.setDataFormat(format.getFormat("0"));
+                cellLimite.setCellValue(clasificacion.getLimiteLiquido());
+            }
+            Cell cellIndice = row.createCell(8);
+            if (clasificacion.getIndicePlasticidad() == 0) {
+                cellIndice.setCellValue("");
+            } else {
+                cellIndice.setCellValue(clasificacion.getIndicePlasticidad());
+            }
             if (rotado.isPresent()) {
                 if (rotado.get().getID() == suelo.getID()) {
                     cell = row.getCell(16);
@@ -88,6 +104,11 @@ public class UpdateUtility {
                     cell.setCellValue("R O T A D O");
                     cell.setCellStyle(cellStyle);
                     sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, numCeldaAnterior, 16, 19));
+                    Cell npCell = row.getCell(7);
+                    if (npCell == null) npCell = row.createCell(7);
+                    npCell.setCellValue("NP");
+                    if (cellIndice == null) cellIndice = row.createCell(8);
+                    cellIndice.setCellValue("NP");
                 }
             }
             // ingreso de las imagenes del tipo de suelo
@@ -100,21 +121,8 @@ public class UpdateUtility {
             cell.setCellValue(clasificacion.getDescripcion() + "\n(" + suelo.getSimbolo().toUpperCase() + ")");
             cellStyle.setWrapText(true);
             cell.setCellStyle(cellStyle);
-            Cell cellLimite = row.createCell(7);
-            if (clasificacion.getLimiteLiquido() == 0) {
-                cellLimite.setCellValue("");
-                //sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 11, 11));
-            } else {
-                styleFormat.setDataFormat(format.getFormat("0"));
-                cellLimite.setCellValue(clasificacion.getLimiteLiquido());
-            }
             cellLimite.setCellStyle(styleFormat);
-            Cell cellIndice = row.createCell(8);
-            if (clasificacion.getIndicePlasticidad() == 0) {
-                cellIndice.setCellValue("");
-            } else {
-                cellIndice.setCellValue(clasificacion.getIndicePlasticidad());
-            }
+
             cellIndice.setCellStyle(styleFormat);
             sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 0, 0));
             sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 1, 1));

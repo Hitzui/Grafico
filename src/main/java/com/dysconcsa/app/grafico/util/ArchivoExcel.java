@@ -164,7 +164,7 @@ public class ArchivoExcel {
             double profundidadFinal = datosCampoProperties.get(datosCampoProperties.size() - 1).getProfundidadFinal();
             logger.info("Profundidad final del ultimo golpe: " + profundidadFinal);
             int size = (int) (profundidadFinal * 2);
-            pt.drawBorders(new CellRangeAddress(12, size + 11, 0, lastRow), BorderStyle.THIN, BorderExtent.ALL);
+            pt.drawBorders(new CellRangeAddress(12, size + 11, 0, 13), BorderStyle.THIN, BorderExtent.ALL);
             //borde exterior completo
             pt.drawBorders(new CellRangeAddress(5, size + 11, 0, lastRow), BorderStyle.MEDIUM, BorderExtent.OUTSIDE);
             //operador
@@ -457,9 +457,10 @@ public class ArchivoExcel {
         sheet.addMergedRegion(new CellRangeAddress(10, 11, 14, lastRow));
         try {
             int _initRow;
-            int size = datosCampoProperties.size() * 3;
+            //int size = datosCampoProperties.size() * 3;
+            int size = (int) (datosCampoProperties.get(datosCampoProperties.size() - 1).getProfundidadFinal() * 2);
             utility.setWb(wb);
-            utility.crearDatosCampo(sheet, datosCampoProperties,clasificacionSucsProperties);
+            utility.crearDatosCampo(sheet, datosCampoProperties, clasificacionSucsProperties);
             updateUtility.clasificacion(sheet, clasificacionSucsProperties, datosSondeos.get(0).getElevacion());
             utility.datosHumedad(sheet, humedadProperties, size);
             //utility.generateSeriesX(datosCampoProperties);
@@ -520,6 +521,7 @@ public class ArchivoExcel {
             for (Map.Entry<List<Integer>, List<Double>> puntos : value.entrySet()) {
                 if (i > 0) i += 1;
                 List<Integer> x = puntos.getKey();
+                int max = x.stream().mapToInt(a -> a).max().orElse(0);
                 List<Double> y = puntos.getValue();
                 size = x.size();
                 for (int j = 0; j < size; j++) {
@@ -661,9 +663,12 @@ public class ArchivoExcel {
             ctPlotArea.addNewSpPr();
         }
         ctPlotArea.getSpPr().addNewNoFill();
+        //ctPlotArea.getCatAxArray()[0].addNewMajorGridlines();
+        //ctPlotArea.getValAxArray()[0].addNewMajorGridlines();
         XDDFValueAxis bottomAxis = chart.createValueAxis(AxisPosition.BOTTOM);
         //bottomAxis.setTitle("N = Golpes / Pie");
         CTValAx ctValAx = ctPlotArea.getValAxArray((int) bottomAxis.getId());
+        ctValAx.addNewMajorGridlines();
         CTTextBody ctTextBody = ctValAx.addNewTxPr();
         ctTextBody.addNewBodyPr(); //body properties
         CTTextCharacterProperties ctTextCharacterProperties = ctTextBody.addNewP().addNewPPr().addNewDefRPr(); //character properties
@@ -677,13 +682,16 @@ public class ArchivoExcel {
         //bottomAxis.getOrAddMajorGridProperties();
         bottomAxis.setVisible(true);
         XDDFValueAxis leftAxis = chart.createValueAxis(AxisPosition.LEFT);
+        CTValAx ctLeftAxis = ctPlotArea.getValAxArray((int) leftAxis.getId());
+        ctLeftAxis.addNewMajorGridlines();
         // leftAxis.setTitle("f(x)");
         leftAxis.crossAxis(bottomAxis);
         // leftAxis.getOrAddMajorGridProperties();
         leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
         leftAxis.setOrientation(AxisOrientation.MAX_MIN);
-        double maxValue = yList.get(yList.size() - 1);
-        leftAxis.setMajorUnit(maxValue);
+        double maxValue = datosCampoProperty.getProfundidadFinal();
+        leftAxis.setMajorUnit(0.5);
+        //leftAxis.setMajorUnit(maxValue);
         leftAxis.setMinorUnit(0);
         leftAxis.setMaximum(maxValue);
         leftAxis.setMinimum(0);
