@@ -510,35 +510,42 @@ public class Utility {
     public void writeLastDirectory(String value) {
         PrintWriter fw;
         try {
-            File checkfile = new File("c:\\config");
-            if (!checkfile.isDirectory()) {
+            logger.info(value);
+            propertiesFile.saveParamChanges("lastDirectory", value);
+            /*File checkfile = new File("c:\\config");
+            if (!checkfile.exists()) {
                 checkfile.mkdir();
             }
             fw = new PrintWriter("c:\\config\\directory.txt");
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(value);
             bw.close();
-            fw.close();
+            fw.close();*/
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public String readLastDirectory() {
-        try {
+        if(propertiesFile.containsKey("lastDirectory")){
+            return propertiesFile.getProperty("lastDirectory");
+        }else{
+            return System.getProperty("user.dir");
+        }
+        /*try {
             BufferedReader reader = new BufferedReader(new FileReader("c:\\config\\directory.txt"));
             String line = reader.readLine();
             reader.close();
-            if (line.equals("null")) return System.getProperty("user.hom");
+            if (line.equals("null")) return System.getProperty("user.home");
             File file = new File(line);
             if (file.exists()) {
                 return line;
             } else {
-                return System.getProperty("user.hom");
+                return System.getProperty("user.home");
             }
         } catch (Exception e) {
             e.printStackTrace();
             return System.getProperty("user.home");
-        }
+        }*/
     }
 }
