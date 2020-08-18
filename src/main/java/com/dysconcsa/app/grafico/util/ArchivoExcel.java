@@ -522,6 +522,7 @@ public class ArchivoExcel {
             for (Map.Entry<List<Integer>, List<Double>> puntos : value.entrySet()) {
                 if (i > 0) i += 1;
                 List<Integer> x = puntos.getKey();
+                int max = x.stream().mapToInt(a -> a).max().orElse(0);
                 List<Double> y = puntos.getValue();
                 if (x.size() > 0) {
                     size = x.size();
