@@ -164,7 +164,7 @@ public class ArchivoExcel {
             double profundidadFinal = datosCampoProperties.get(datosCampoProperties.size() - 1).getProfundidadFinal();
             logger.info("Profundidad final del ultimo golpe: " + profundidadFinal);
             int size = (int) (profundidadFinal * 2);
-            pt.drawBorders(new CellRangeAddress(12, size + 11, 0, lastRow), BorderStyle.THIN, BorderExtent.ALL);
+            pt.drawBorders(new CellRangeAddress(12, size + 11, 0, 13), BorderStyle.THIN, BorderExtent.ALL);
             //borde exterior completo
             pt.drawBorders(new CellRangeAddress(5, size + 11, 0, lastRow), BorderStyle.MEDIUM, BorderExtent.OUTSIDE);
             //operador
@@ -457,9 +457,10 @@ public class ArchivoExcel {
         sheet.addMergedRegion(new CellRangeAddress(10, 11, 14, lastRow));
         try {
             int _initRow;
-            int size = datosCampoProperties.size() * 3;
+            //int size = datosCampoProperties.size() * 3;
+            int size = (int) (datosCampoProperties.get(datosCampoProperties.size() - 1).getProfundidadFinal() * 2);
             utility.setWb(wb);
-            utility.crearDatosCampo(sheet, datosCampoProperties,clasificacionSucsProperties);
+            utility.crearDatosCampo(sheet, datosCampoProperties, clasificacionSucsProperties);
             updateUtility.clasificacion(sheet, clasificacionSucsProperties, datosSondeos.get(0).getElevacion());
             utility.datosHumedad(sheet, humedadProperties, size);
             //utility.generateSeriesX(datosCampoProperties);
@@ -511,6 +512,7 @@ public class ArchivoExcel {
 
     private void valoresGrafico(ObservableList<DatosCampoProperty> datosCampoProperties, Workbook wb) {
         Map<Integer, Map<List<Integer>, List<Double>>> listOfPuntosXY = updateUtility.genearXY(datosCampoProperties);
+        logger.info("Size of list: " + listOfPuntosXY.size());
         Utility utility = new Utility();
         XSSFSheet sheet = (XSSFSheet) wb.createSheet("Datos");
         for (Map.Entry<Integer, Map<List<Integer>, List<Double>>> series : listOfPuntosXY.entrySet()) {
@@ -521,16 +523,20 @@ public class ArchivoExcel {
                 if (i > 0) i += 1;
                 List<Integer> x = puntos.getKey();
                 List<Double> y = puntos.getValue();
-                size = x.size();
-                for (int j = 0; j < size; j++) {
-                    Row row = sheet.getRow(j);
-                    if (row == null) row = sheet.createRow(j);
-                    Cell cell = row.createCell(i);
-                    cell.setCellValue(x.get(j));
-                    cell = row.createCell(1 + i);
-                    cell.setCellValue(y.get(j));
+                if (x.size() > 0) {
+                    size = x.size();
+                    logger.info("Size of x: " + x.size());
+                    for (int j = 0; j < size; j++) {
+                        Row row = sheet.getRow(j);
+                        if (row == null) row = sheet.createRow(j);
+                        Cell cell = row.createCell(i);
+                        cell.setCellValue(x.get(j));
+                        cell = row.createCell(1 + i);
+                        cell.setCellValue(y.get(j));
+                    }
                 }
             }
+            logger.info("" + series.getKey());
             seriesGrafico.put(series.getKey(), size);
         }
         createChart((XSSFSheet) wb.getSheetAt(0), sheet, datosCampoProperties, utility);
@@ -661,9 +667,12 @@ public class ArchivoExcel {
             ctPlotArea.addNewSpPr();
         }
         ctPlotArea.getSpPr().addNewNoFill();
+        //ctPlotArea.getCatAxArray()[0].addNewMajorGridlines();
+        //ctPlotArea.getValAxArray()[0].addNewMajorGridlines();
         XDDFValueAxis bottomAxis = chart.createValueAxis(AxisPosition.BOTTOM);
         //bottomAxis.setTitle("N = Golpes / Pie");
         CTValAx ctValAx = ctPlotArea.getValAxArray((int) bottomAxis.getId());
+        ctValAx.addNewMajorGridlines();
         CTTextBody ctTextBody = ctValAx.addNewTxPr();
         ctTextBody.addNewBodyPr(); //body properties
         CTTextCharacterProperties ctTextCharacterProperties = ctTextBody.addNewP().addNewPPr().addNewDefRPr(); //character properties
@@ -677,23 +686,28 @@ public class ArchivoExcel {
         //bottomAxis.getOrAddMajorGridProperties();
         bottomAxis.setVisible(true);
         XDDFValueAxis leftAxis = chart.createValueAxis(AxisPosition.LEFT);
+        CTValAx ctLeftAxis = ctPlotArea.getValAxArray((int) leftAxis.getId());
+        ctLeftAxis.addNewMajorGridlines();
         // leftAxis.setTitle("f(x)");
         leftAxis.crossAxis(bottomAxis);
         // leftAxis.getOrAddMajorGridProperties();
         leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
         leftAxis.setOrientation(AxisOrientation.MAX_MIN);
-        double maxValue = yList.get(yList.size() - 1);
-        leftAxis.setMajorUnit(maxValue);
+        double maxValue = datosCampoProperty.getProfundidadFinal();
+        leftAxis.setMajorUnit(0.5);
+        //leftAxis.setMajorUnit(maxValue);
         leftAxis.setMinorUnit(0);
         leftAxis.setMaximum(maxValue);
         leftAxis.setMinimum(0);
         leftAxis.setVisible(false);
         XDDFScatterChartData data = (XDDFScatterChartData) chart.createData(ChartTypes.SCATTER, bottomAxis, leftAxis);
-        //final int[] i = {0};
+        logger.info(seriesGrafico.size() + "");
         for (Map.Entry<Integer, Integer> map : seriesGrafico.entrySet()) {
             int i = map.getKey();
             if (i > 0) i += 1;
             int columns = i;
+            logger.info("Columns value: " + i);
+            logger.info("Map getValue: " + map.getValue());
             int rows = map.getValue();
             XDDFNumericalDataSource<Double> xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns, columns));
             XDDFNumericalDataSource<Double> ys = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns + 1, columns + 1));
