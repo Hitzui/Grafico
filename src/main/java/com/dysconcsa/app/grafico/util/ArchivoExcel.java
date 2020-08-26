@@ -162,7 +162,7 @@ public class ArchivoExcel {
             //cuadro de titulos
             pt.drawBorders(new CellRangeAddress(5, 9, 0, 9), BorderStyle.THIN, BorderExtent.ALL);
             double profundidadFinal = datosCampoProperties.get(datosCampoProperties.size() - 1).getProfundidadFinal();
-            logger.info("Profundidad final del ultimo golpe: " + profundidadFinal);
+            //logger.info("Profundidad final del ultimo golpe: " + profundidadFinal);
             int size = (int) (profundidadFinal * 2);
             pt.drawBorders(new CellRangeAddress(12, size + 11, 0, 13), BorderStyle.THIN, BorderExtent.ALL);
             //borde exterior completo
@@ -512,7 +512,7 @@ public class ArchivoExcel {
 
     private void valoresGrafico(ObservableList<DatosCampoProperty> datosCampoProperties, Workbook wb) {
         Map<Integer, Map<List<Integer>, List<Double>>> listOfPuntosXY = updateUtility.genearXY(datosCampoProperties);
-        logger.info("Size of list: " + listOfPuntosXY.size());
+        //logger.info("Size of list: " + listOfPuntosXY.size());
         Utility utility = new Utility();
         XSSFSheet sheet = (XSSFSheet) wb.createSheet("Datos");
         for (Map.Entry<Integer, Map<List<Integer>, List<Double>>> series : listOfPuntosXY.entrySet()) {
@@ -526,7 +526,7 @@ public class ArchivoExcel {
                 List<Double> y = puntos.getValue();
                 if (x.size() > 0) {
                     size = x.size();
-                    logger.info("Size of x: " + x.size());
+                    //logger.info("Size of x: " + x.size());
                     for (int j = 0; j < size; j++) {
                         Row row = sheet.getRow(j);
                         if (row == null) row = sheet.createRow(j);
@@ -537,67 +537,11 @@ public class ArchivoExcel {
                     }
                 }
             }
-            logger.info("" + series.getKey());
+            //logger.info("" + series.getKey());
             seriesGrafico.put(series.getKey(), size);
         }
         createChart((XSSFSheet) wb.getSheetAt(0), sheet, datosCampoProperties, utility);
     }
-
-    /*private void valoresGrafico(ObservableList<DatosCampoProperty> datosCampoProperties, Workbook wb) {
-        try {
-            UpdateUtility updateUtility = new UpdateUtility();
-            updateUtility.genearXY(datosCampoProperties);
-            Utility utility = new Utility();
-            XSSFSheet sheet = (XSSFSheet) wb.createSheet("Datos");
-            List<Integer> xValues = utility.xValues(datosCampoProperties);
-            List<Double> yValues = utility.yValues(datosCampoProperties);
-            for (int i = 0; i < xValues.size(); i++) {
-                Row row = sheet.createRow(i);
-                Cell cell = row.createCell(0);
-                cell.setCellValue(xValues.get(i));
-                cell = row.createCell(1);
-                cell.setCellValue(yValues.get(i));
-            }
-            utility.generateSeriesX(datosCampoProperties);
-            Map<Integer, List<Integer>> mapRotadoX = utility.mapRotadosX;
-            Map<Integer, List<Double>> mapRotadoY = utility.mapRotadosY;
-            int i = 0;
-            for (Map.Entry<Integer, List<Integer>> xValue : mapRotadoX.entrySet()) {
-                List<Integer> x = xValue.getValue();
-                for (Integer value : x) {
-                    Row row = sheet.getRow(i);
-                    if (row == null) {
-                        row = sheet.createRow(i);
-                    }
-                    Cell cell = row.createCell(3);
-                    cell.setCellValue(value);
-                    i++;
-                }
-            }
-            i = 0;
-            for (Map.Entry<Integer, List<Double>> yValue : mapRotadoY.entrySet()) {
-                List<Double> y = yValue.getValue();
-                for (Double value : y) {
-                    Row row = sheet.getRow(i);
-                    if (row == null)
-                        row = sheet.createRow(i);
-                    Cell cell = row.createCell(4);
-                    cell.setCellValue(value);
-                    i++;
-                }
-            }
-            Row row = sheet.getRow(xValues.size());
-            if (row == null)
-                row = sheet.createRow(xValues.size());
-            Cell cell = row.createCell(0);
-            cell.setCellValue(0d);
-            cell = row.createCell(1);
-            cell.setCellValue(yValues.get(yValues.size() - 1));
-            chart((XSSFSheet) wb.getSheetAt(0), sheet, datosCampoProperties, utility);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }*/
 
     private void borderCellRotate(Cell cell, Workbook wb, Font fontBold, short rotation) {
         CellStyle cellStyleDatos = wb.createCellStyle();
@@ -702,13 +646,13 @@ public class ArchivoExcel {
         leftAxis.setMinimum(0);
         leftAxis.setVisible(false);
         XDDFScatterChartData data = (XDDFScatterChartData) chart.createData(ChartTypes.SCATTER, bottomAxis, leftAxis);
-        logger.info(seriesGrafico.size() + "");
+        //logger.info(seriesGrafico.size() + "");
         for (Map.Entry<Integer, Integer> map : seriesGrafico.entrySet()) {
             int i = map.getKey();
             if (i > 0) i += 1;
             int columns = i;
-            logger.info("Columns value: " + i);
-            logger.info("Map getValue: " + map.getValue());
+            //logger.info("Columns value: " + i);
+            //logger.info("Map getValue: " + map.getValue());
             int rows = map.getValue();
             XDDFNumericalDataSource<Double> xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns, columns));
             XDDFNumericalDataSource<Double> ys = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns + 1, columns + 1));

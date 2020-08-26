@@ -27,7 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -127,19 +128,24 @@ public class Utility {
         CellStyle cellStyleRight = customCellStyle(wb, HorizontalAlignment.RIGHT, (short) 22);
         CellStyle cellStyleCenter2 = customCellStyle(wb, HorizontalAlignment.CENTER, (short) 34);
         int numCeldaAnterior = initRow;
-        int cbsb = Integer.parseInt(propertiesFile.getProperty("cbsb"));
+        int cbsb = 0;
+        try {
+            cbsb = Integer.parseInt(propertiesFile.getProperty("cbsb"));
+        } catch (Exception ignored) {
+            cbsb = clasificacionSucsProperties.stream().findFirst().get().getTipoSuelo();
+        }
         DaoSuelos daoSuelos = new DaoSuelos();
         double profundidadCBSB = 0d;
-        XSSFDataFormat dataFormat = wb.createDataFormat();
+        int finalCbsb = cbsb;
         Optional<ClasificacionSucsProperty> any = clasificacionSucsProperties.stream()
-                .filter(f -> f.getTipoSuelo() == cbsb).findAny();
+                .filter(f -> f.getTipoSuelo() == finalCbsb).findAny();
         if (any.isPresent()) {
             SuelosProperty suelosProperty = daoSuelos.findById(cbsb);
             ClasificacionSucsProperty clasificacionSucsProperty = any.get();
             if (suelosProperty != null) {
                 profundidadCBSB = clasificacionSucsProperty.getProfundidad();
                 int dif = (int) (clasificacionSucsProperty.getProfundidad() * 2);
-                logger.info("Tamano de cbsb: " + dif);
+                //logger.info("Tamano de cbsb: " + dif);
                 sheet.addMergedRegion(new CellRangeAddress(initRow, initRow + dif - 1, 10, 10));
                 sheet.addMergedRegion(new CellRangeAddress(initRow, initRow + dif - 1, 11, 11));
                 sheet.addMergedRegion(new CellRangeAddress(initRow, initRow + dif - 1, 12, 12));
@@ -148,7 +154,7 @@ public class Utility {
         }
         for (DatosCampoProperty dato : datosCampoProperties) {
             if (profundidadCBSB == dato.getProfundidadFinal()) continue;
-            logger.info("Inicio de celda " + numCeldaAnterior);
+            //logger.info("Inicio de celda " + numCeldaAnterior);
             Row row = sheet.getRow(numCeldaAnterior);
             if (row == null) {
                 row = sheet.createRow(numCeldaAnterior);
@@ -402,7 +408,7 @@ public class Utility {
                     mapRotadosX.put(mapRotadosX.size() + 1, x);
                     mapRotadosY.put(mapRotadosY.size() + 1, y);
                 }
-                System.out.println(mapRotadosX + " <> " + mapRotadosY);
+                //System.out.println(mapRotadosX + " <> " + mapRotadosY);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -427,7 +433,7 @@ public class Utility {
         List<Integer> listaValores = this.xValues(datosCampoProperties);
         List<Double> listaConstante = new ArrayList<>();
         int size = datosCampoProperties.size() * 3;
-        System.out.println("Size of array " + size);
+        //System.out.println("Size of array " + size);
         for (int j = 1; j <= size; j++) {
             listaConstante.add(constantePies);
             if (j % 2 == 0) {
@@ -510,7 +516,7 @@ public class Utility {
     public void writeLastDirectory(String value) {
         PrintWriter fw;
         try {
-            logger.info(value);
+            //logger.info(value);
             propertiesFile.saveParamChanges("lastDirectory", value);
             /*File checkfile = new File("c:\\config");
             if (!checkfile.exists()) {
@@ -527,9 +533,9 @@ public class Utility {
     }
 
     public String readLastDirectory() {
-        if(propertiesFile.containsKey("lastDirectory")){
+        if (propertiesFile.containsKey("lastDirectory")) {
             return propertiesFile.getProperty("lastDirectory");
-        }else{
+        } else {
             return System.getProperty("user.dir");
         }
         /*try {

@@ -147,8 +147,12 @@ public class MainController {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Cargar daatos");
                 System.out.println(readDirectory);
-                if(readDirectory==null)  readDirectory="c:\\";
-                fileChooser.setInitialDirectory(new File(readDirectory));
+                if (readDirectory == null) readDirectory = "c:\\";
+                File openDirectory = new File(readDirectory);
+                if (!openDirectory.isDirectory() || !openDirectory.exists()) {
+                    openDirectory = new File("c:\\");
+                }
+                fileChooser.setInitialDirectory(openDirectory);
                 FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Sondeos files (*.sxml)", "*.sxml");
                 fileChooser.getExtensionFilters().add(extFilter);
                 Stage stage = (Stage) mainPane.getScene().getWindow();
@@ -162,7 +166,7 @@ public class MainController {
                 }
             } catch (Exception ex) {
                 AlertError.showAlert(ex);
-                //ex.printStackTrace();
+                ex.printStackTrace();
             }
         });
         btnSave.setOnAction(action -> centerPane.getChildren().forEach(node -> {
