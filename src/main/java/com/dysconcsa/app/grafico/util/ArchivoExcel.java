@@ -646,15 +646,17 @@ public class ArchivoExcel {
         leftAxis.setMinimum(0);
         leftAxis.setVisible(false);
         XDDFScatterChartData data = (XDDFScatterChartData) chart.createData(ChartTypes.SCATTER, bottomAxis, leftAxis);
-        //logger.info(seriesGrafico.size() + "");
+        logger.info(seriesGrafico.size() + "");
         for (Map.Entry<Integer, Integer> map : seriesGrafico.entrySet()) {
             int i = map.getKey();
-            if (i > 0) i += 1;
+            if (i > 0) i += 2;
             int columns = i;
             //logger.info("Columns value: " + i);
             //logger.info("Map getValue: " + map.getValue());
             int rows = map.getValue();
+            logger.info("XS Values: " + (rows - 1) + ", columns: " + columns + " - " + (columns + 1));
             XDDFNumericalDataSource<Double> xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns, columns));
+            //logger.info("Values: " + (rows - 1) + ", culumns: " + (columns + 1) + " - " + (columns + 1));
             XDDFNumericalDataSource<Double> ys = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns + 1, columns + 1));
             XDDFScatterChartData.Series series = (XDDFScatterChartData.Series) data.addSeries(xs, ys);
             series.setSmooth(false);

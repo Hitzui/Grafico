@@ -85,7 +85,7 @@ public class UpdateUtility {
             SuelosProperty suelo = daoSuelos.findById(clasificacion.getTipoSuelo());
             Cell cellLimite = row.createCell(7);
             if (clasificacion.getLimiteLiquido() == 0) {
-                cellLimite.setCellValue("");
+                cellLimite.setCellValue("NP");
                 //sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 11, 11));
             } else {
                 styleFormat.setDataFormat(format.getFormat("0"));
@@ -93,22 +93,25 @@ public class UpdateUtility {
             }
             Cell cellIndice = row.createCell(8);
             if (clasificacion.getIndicePlasticidad() == 0) {
-                cellIndice.setCellValue("");
+                cellIndice.setCellValue("NP");
             } else {
                 cellIndice.setCellValue(clasificacion.getIndicePlasticidad());
             }
             if (rotado.isPresent()) {
                 if (rotado.get().getID() == suelo.getID()) {
-                    cell = row.getCell(16);
-                    if (cell == null) cell = row.createCell(16);
+                    XSSFRow rowRotado = sheet.getRow(row.getRowNum() + 1);
+                    if (rowRotado == null) rowRotado = sheet.createRow(row.getRowNum() + 1);
+                    cell = rowRotado.getCell(16);
+                    if (cell == null) cell = rowRotado.createCell(16);
                     cell.setCellValue("R O T A D O");
                     cell.setCellStyle(cellStyle);
-                    sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, numCeldaAnterior, 16, 19));
-                    Cell npCell = row.getCell(7);
-                    if (npCell == null) npCell = row.createCell(7);
-                    npCell.setCellValue("NP");
-                    if (cellIndice == null) cellIndice = row.createCell(8);
-                    cellIndice.setCellValue("NP");
+                    sheet.addMergedRegion(new CellRangeAddress(rowRotado.getRowNum(), rowRotado.getRowNum(), 16, 19));
+                    if (clasificacion.getLimiteLiquido() == 0) {
+                        cellLimite.setCellValue("");
+                    }
+                    if (clasificacion.getIndicePlasticidad() == 0) {
+                        cellIndice.setCellValue("");
+                    }
                 }
             }
             // ingreso de las imagenes del tipo de suelo
@@ -193,15 +196,19 @@ public class UpdateUtility {
                     Map<List<Integer>, List<Double>> xyDatos = addSerieMap(xValues, yValues);
                     valores.put(aux, xyDatos);
                     aux += 1;
-
                 }
             }
         }
-        if (valores.isEmpty()) {
+        if (!xValues.isEmpty()) {
             Map<List<Integer>, List<Double>> xyDatos = addSerieMap(xValues, yValues);
             xyDatos.put(xValues, yValues);
             valores.put(aux, xyDatos);
         }
+        /*if (valores.isEmpty()) {
+            Map<List<Integer>, List<Double>> xyDatos = addSerieMap(xValues, yValues);
+            xyDatos.put(xValues, yValues);
+            valores.put(aux, xyDatos);
+        }*/
         return valores;
     }
 
