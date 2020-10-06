@@ -317,17 +317,19 @@ public class Utility {
     }
 
     public XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize) {
+        return customCellStyle(wb,horizontal,fontSize,true);
+    }
+    public XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize,boolean wrapText) {
         XSSFCellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();
         font.setBold(true);
         font.setFontHeightInPoints(fontSize);
         cellStyle.setFont(font);
         cellStyle.setAlignment(horizontal);
-        cellStyle.setWrapText(true);
+        cellStyle.setWrapText(wrapText);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
         return cellStyle;
     }
-
     public XSSFCellStyle customCellStyle(XSSFWorkbook wb) {
         XSSFCellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();

@@ -53,6 +53,7 @@ public class UpdateUtility {
         CellStyle style;
         CellStyle styleFormat = utility.customCellStyle(wb, HorizontalAlignment.CENTER, (short) 22);
         XSSFCellStyle cellStyle = utility.customCellStyle(wb, HorizontalAlignment.CENTER, (short) 22);
+        XSSFCellStyle cellStyleDescripcionSuelo = cellStyle;
         XSSFCellStyle cellStyleBottom = utility.customCellStyle(wb);
         Optional<SuelosProperty> rotado = daoSuelos.findAll().stream().filter(suelo -> suelo.getNombre().equals("rotado")).findAny();
         double profundidadInicialSuelos = 0d;
@@ -121,11 +122,15 @@ public class UpdateUtility {
             cellSucs.setCellValue(suelo.getSimbolo().toUpperCase());
             cell = row.createCell(6);
             cell.setCellStyle(cellStyle);
+            //ajustamos la descripcion al contenido de la celda para que el grafico no se mueva
             cell.setCellValue(clasificacion.getDescripcion() + "\n(" + suelo.getSimbolo().toUpperCase() + ")");
-            cellStyle.setWrapText(true);
-            cell.setCellStyle(cellStyle);
+            if (cantCelda <= 3) {
+                cellStyleDescripcionSuelo = utility.customCellStyle(wb, HorizontalAlignment.CENTER, (short) 17, false);
+                cell.setCellStyle(cellStyleDescripcionSuelo);
+            } else {
+                cell.setCellStyle(cellStyle);
+            }
             cellLimite.setCellStyle(styleFormat);
-
             cellIndice.setCellStyle(styleFormat);
             sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 0, 0));
             sheet.addMergedRegion(new CellRangeAddress(numCeldaAnterior, valorActual, 1, 1));

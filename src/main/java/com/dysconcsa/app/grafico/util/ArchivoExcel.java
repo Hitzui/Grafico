@@ -510,6 +510,12 @@ public class ArchivoExcel {
         }
     }
 
+    /**
+     * <p>Genera los valores que se usaran en el grafico, por cada serie se genera un par (x,y), respectivamente
+     * en la filas (n,m), ejemplo: (cell 0, cell 1), para cada row, segun serie n</p>
+     * @param datosCampoProperties
+     * @param wb
+     */
     private void valoresGrafico(ObservableList<DatosCampoProperty> datosCampoProperties, Workbook wb) {
         Map<Integer, Map<List<Integer>, List<Double>>> listOfPuntosXY = updateUtility.genearXY(datosCampoProperties);
         //logger.info("Size of list: " + listOfPuntosXY.size());
@@ -526,7 +532,6 @@ public class ArchivoExcel {
                 List<Double> y = puntos.getValue();
                 if (x.size() > 0) {
                     size = x.size();
-                    //logger.info("Size of x: " + x.size());
                     for (int j = 0; j < size; j++) {
                         Row row = sheet.getRow(j);
                         if (row == null) row = sheet.createRow(j);
@@ -591,7 +596,7 @@ public class ArchivoExcel {
         XSSFDrawing drawing = sheet.createDrawingPatriarch();
         DatosCampoProperty datosCampoProperty = datosCampoProperties.get(datosCampoProperties.size() - 1);
         int num_rows = (int) ((datosCampoProperty.getProfundidadFinal() * 2) + 13);
-        List<Double> yList = utility.yValues(datosCampoProperties);
+        //List<Double> yList = utility.yValues(datosCampoProperties);
         XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 14, 10, lastRow + 1, num_rows);
         //Map<Integer, List<Integer>> mapRotadoX = utility.mapRotadosX;
         XSSFChart chart = drawing.createChart(anchor);
@@ -649,15 +654,17 @@ public class ArchivoExcel {
         logger.info(seriesGrafico.size() + "");
         for (Map.Entry<Integer, Integer> map : seriesGrafico.entrySet()) {
             int i = map.getKey();
-            if (i > 0) i += 2;
+            if (i > 0) i += 1;
             int columns = i;
             //logger.info("Columns value: " + i);
             //logger.info("Map getValue: " + map.getValue());
             int rows = map.getValue();
             logger.info("XS Values: " + (rows - 1) + ", columns: " + columns + " - " + (columns + 1));
-            XDDFNumericalDataSource<Double> xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns, columns));
+            XDDFNumericalDataSource<Double> xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
+                    new CellRangeAddress(0, rows - 1, columns, columns));
             //logger.info("Values: " + (rows - 1) + ", culumns: " + (columns + 1) + " - " + (columns + 1));
-            XDDFNumericalDataSource<Double> ys = XDDFDataSourcesFactory.fromNumericCellRange(sheet2, new CellRangeAddress(0, rows - 1, columns + 1, columns + 1));
+            XDDFNumericalDataSource<Double> ys = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
+                    new CellRangeAddress(0, rows - 1, columns + 1, columns + 1));
             XDDFScatterChartData.Series series = (XDDFScatterChartData.Series) data.addSeries(xs, ys);
             series.setSmooth(false);
             series.setMarkerStyle(MarkerStyle.NONE);
