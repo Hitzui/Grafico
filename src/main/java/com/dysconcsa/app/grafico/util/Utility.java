@@ -342,6 +342,17 @@ public class Utility {
         cellStyle.setVerticalAlignment(VerticalAlignment.BOTTOM);
         return cellStyle;
     }
+    /*public XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize,boolean wrapttext) {
+        XSSFCellStyle cellStyle = wb.createCellStyle();
+        Font font = wb.createFont();
+        font.setBold(true);
+        font.setFontHeightInPoints(fontSize);
+        cellStyle.setFont(font);
+        cellStyle.setAlignment(horizontal);
+        cellStyle.setWrapText(wrapttext);
+        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        return cellStyle;
+    }*/
 
     void generateSeriesX(ObservableList<DatosCampoProperty> datosCampoProperties) {
         try {

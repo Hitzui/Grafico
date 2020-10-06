@@ -48,15 +48,12 @@ public class ArchivoExcel {
     private ObservableList<HumedadProperty> humedadProperties;
     private List<DatosSondeo> datosSondeos;
     private ObservableList<TrepanoProperty> trepanoProperties;
-    private Utility utility;
-    private int lastRow = 29;
-    private Map<Integer, Integer> seriesGrafico = new HashMap<>();
+    private final Utility utility;
+    private final int lastRow = 29;
+    private final Map<Integer, Integer> seriesGrafico = new HashMap<>();
     UpdateUtility updateUtility = new UpdateUtility();
 
     public void setTabPane(JFXTabPane tabPane) {
-    }
-
-    public void setTabToUse(Tab tabToUse) {
     }
 
     public void setTrepanoProperties(ObservableList<TrepanoProperty> trepanoProperties) {
