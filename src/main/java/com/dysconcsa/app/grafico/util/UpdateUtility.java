@@ -160,8 +160,6 @@ public class UpdateUtility {
         for (DatosCampoProperty dato : datosCampoProperties) {
             double profundidadInicial = dato.getProfundidadInicial();
             double profundidadFinal = dato.getProfundidadFinal();
-            //celda inicial donde inicia el valor del recobro
-            //celda final donde termina el valor recobro
             int multi = dato.getGolpe1() * 2;
             int suma = dato.getGolpe2() + dato.getGolpe3();
             if (dato.getGolpe1() > 0) {

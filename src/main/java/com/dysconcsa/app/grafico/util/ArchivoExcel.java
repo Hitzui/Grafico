@@ -8,7 +8,6 @@ import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTabPane;
 import javafx.application.HostServices;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import org.apache.poi.hssf.usermodel.HeaderFooter;
 import org.apache.poi.ss.usermodel.Font;
@@ -510,6 +509,7 @@ public class ArchivoExcel {
     /**
      * <p>Genera los valores que se usaran en el grafico, por cada serie se genera un par (x,y), respectivamente
      * en la filas (n,m), ejemplo: (cell 0, cell 1), para cada row, segun serie n</p>
+     *
      * @param datosCampoProperties
      * @param wb
      */
@@ -517,15 +517,14 @@ public class ArchivoExcel {
         Map<Integer, Map<List<Integer>, List<Double>>> listOfPuntosXY = updateUtility.genearXY(datosCampoProperties);
         //logger.info("Size of list: " + listOfPuntosXY.size());
         Utility utility = new Utility();
+        int i = 0;
         XSSFSheet sheet = (XSSFSheet) wb.createSheet("Datos");
         for (Map.Entry<Integer, Map<List<Integer>, List<Double>>> series : listOfPuntosXY.entrySet()) {
             Map<List<Integer>, List<Double>> value = series.getValue();
-            int i = series.getKey();
             int size = 0;
             for (Map.Entry<List<Integer>, List<Double>> puntos : value.entrySet()) {
-                if (i > 0) i += 1;
+                logger.info("Value of i " + i);
                 List<Integer> x = puntos.getKey();
-                int max = x.stream().mapToInt(a -> a).max().orElse(0);
                 List<Double> y = puntos.getValue();
                 if (x.size() > 0) {
                     size = x.size();
@@ -538,6 +537,8 @@ public class ArchivoExcel {
                         cell.setCellValue(y.get(j));
                     }
                 }
+                i++;
+                logger.info("Value of i: " + i);
             }
             //logger.info("" + series.getKey());
             seriesGrafico.put(series.getKey(), size);
@@ -648,7 +649,6 @@ public class ArchivoExcel {
         leftAxis.setMinimum(0);
         leftAxis.setVisible(false);
         XDDFScatterChartData data = (XDDFScatterChartData) chart.createData(ChartTypes.SCATTER, bottomAxis, leftAxis);
-        logger.info(seriesGrafico.size() + "");
         for (Map.Entry<Integer, Integer> map : seriesGrafico.entrySet()) {
             int i = map.getKey();
             if (i > 0) i += 1;
