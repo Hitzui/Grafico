@@ -4,9 +4,9 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
 public class HumedadProperty {
-    private DoubleProperty profundidadInicial;
-    private DoubleProperty profundidadFinal;
-    private DoubleProperty humedad;
+    private final DoubleProperty profundidadInicial;
+    private final DoubleProperty profundidadFinal;
+    private final DoubleProperty humedad;
 
     public HumedadProperty() {
         this.profundidadInicial = new SimpleDoubleProperty(0.0);

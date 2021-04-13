@@ -519,29 +519,51 @@ public class ArchivoExcel {
         Utility utility = new Utility();
         int i = 0;
         XSSFSheet sheet = (XSSFSheet) wb.createSheet("Datos");
-        for (Map.Entry<Integer, Map<List<Integer>, List<Double>>> series : listOfPuntosXY.entrySet()) {
-            Map<List<Integer>, List<Double>> value = series.getValue();
-            int size = 0;
-            for (Map.Entry<List<Integer>, List<Double>> puntos : value.entrySet()) {
-                logger.info("Value of i " + i);
-                List<Integer> x = puntos.getKey();
-                List<Double> y = puntos.getValue();
-                if (x.size() > 0) {
-                    size = x.size();
-                    for (int j = 0; j < size; j++) {
-                        Row row = sheet.getRow(j);
-                        if (row == null) row = sheet.createRow(j);
-                        Cell cell = row.createCell(i);
-                        cell.setCellValue(x.get(j));
-                        cell = row.createCell(1 + i);
-                        cell.setCellValue(y.get(j));
+        logger.info("Size of puntos: "+listOfPuntosXY.size());
+        logger.info("Size of xy: "+listOfPuntosXY.entrySet().size());
+        if(listOfPuntosXY.entrySet().size()<=0){
+            int size = datosCampoProperties.size();
+            int total = (int) datosCampoProperties.get(size - 1).getProfundidadFinal();
+            Row row = sheet.getRow(0);
+            if (row == null) row = sheet.createRow(0);
+            Cell cell = row.createCell(0);
+            cell.setCellValue(0);
+            cell = row.createCell(1);
+            cell.setCellValue(0);
+            Row nextRow = sheet.getRow(1);
+            if (nextRow == null) row = sheet.createRow(1);
+            Cell nextCell = row.createCell(0);
+            nextCell.setCellValue(0);
+            nextCell = row.createCell(1);
+            nextCell.setCellValue(total);
+            seriesGrafico.put(1, 2);
+        }else {
+            for (Map.Entry<Integer, Map<List<Integer>, List<Double>>> series : listOfPuntosXY.entrySet()) {
+                Map<List<Integer>, List<Double>> value = series.getValue();
+                int size = 0;
+                for (Map.Entry<List<Integer>, List<Double>> puntos : value.entrySet()) {
+                    List<Integer> x = puntos.getKey();
+                    List<Double> y = puntos.getValue();
+                    if (x.size() > 0) {
+                        logger.info("valor inicial de i " + i);
+                        if (i > 0) i++;
+                        size = x.size();
+                        for (int j = 0; j < size; j++) {
+                            Row row = sheet.getRow(j);
+                            if (row == null) row = sheet.createRow(j);
+                            Cell cell = row.createCell(i);
+                            cell.setCellValue(x.get(j));
+                            int aux = i + 1;
+                            cell = row.createCell(aux);
+                            cell.setCellValue(y.get(j));
+                        }
+                        i++;
+                        logger.info("valor final de i " + i);
                     }
                 }
-                i++;
-                logger.info("Value of i: " + i);
+                //logger.info("" + series.getKey());
+                seriesGrafico.put(series.getKey(), size);
             }
-            //logger.info("" + series.getKey());
-            seriesGrafico.put(series.getKey(), size);
         }
         createChart((XSSFSheet) wb.getSheetAt(0), sheet, datosCampoProperties, utility);
     }
@@ -649,14 +671,14 @@ public class ArchivoExcel {
         leftAxis.setMinimum(0);
         leftAxis.setVisible(false);
         XDDFScatterChartData data = (XDDFScatterChartData) chart.createData(ChartTypes.SCATTER, bottomAxis, leftAxis);
+        int i=0;
         for (Map.Entry<Integer, Integer> map : seriesGrafico.entrySet()) {
-            int i = map.getKey();
             if (i > 0) i += 1;
             int columns = i;
             //logger.info("Columns value: " + i);
             //logger.info("Map getValue: " + map.getValue());
             int rows = map.getValue();
-            logger.info("XS Values: " + (rows - 1) + ", columns: " + columns + " - " + (columns + 1));
+            logger.info("Columns: " + columns + " - " + (columns + 1));
             XDDFNumericalDataSource<Double> xs = XDDFDataSourcesFactory.fromNumericCellRange(sheet2,
                     new CellRangeAddress(0, rows - 1, columns, columns));
             //logger.info("Values: " + (rows - 1) + ", culumns: " + (columns + 1) + " - " + (columns + 1));
@@ -665,6 +687,7 @@ public class ArchivoExcel {
             XDDFScatterChartData.Series series = (XDDFScatterChartData.Series) data.addSeries(xs, ys);
             series.setSmooth(false);
             series.setMarkerStyle(MarkerStyle.NONE);
+            i++;
         }
         chart.plot(data);
         solidLineSeries(data);
@@ -744,7 +767,7 @@ public class ArchivoExcel {
             Row row = sheet.getRow(i);
             if (row == null)
                 row = sheet.createRow(i);
-            row.setHeightInPoints(20);
+            row.setHeightInPoints(27);
         }
     }
 }

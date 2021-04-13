@@ -21,9 +21,9 @@ public class PropertiesFile {
 
     public PropertiesFile() {
         try {
-            File file = new File("c:\\config");
+            File file = new File("c:\\config\\appProperties.properties");
             if (!file.exists()) {
-                boolean mkd= file.mkdir();
+                boolean mkd= file.createNewFile();
                 if(mkd) logger.info("Se ha creado el direcctorio de configuracion.");
                 else logger.warn("No se pudo crear el directorio, revise la informacion pertinente");
             }

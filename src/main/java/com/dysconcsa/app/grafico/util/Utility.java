@@ -22,7 +22,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -125,8 +128,9 @@ public class Utility {
     void crearDatosCampo(XSSFSheet sheet, ObservableList<DatosCampoProperty> datosCampoProperties, ObservableList<ClasificacionSucsProperty> clasificacionSucsProperties) throws SQLException {
         XSSFCellStyle cellStyleCenter = customCellStyle(wb, HorizontalAlignment.CENTER, (short) 22);
         CellStyle cellStyleLeft = customCellStyle(wb, HorizontalAlignment.LEFT, (short) 22);
+        CellStyle cellStyleMulti = customCellStyle(wb, HorizontalAlignment.LEFT, (short) 22);
         CellStyle cellStyleRight = customCellStyle(wb, HorizontalAlignment.RIGHT, (short) 22);
-        CellStyle cellStyleCenter2 = customCellStyle(wb, HorizontalAlignment.CENTER, (short) 34);
+        CellStyle cellStyleCenter2 = customCellStyle(wb, HorizontalAlignment.CENTER, (short) 44);
         int numCeldaAnterior = initRow;
         int cbsb = 0;
         try {
@@ -159,6 +163,7 @@ public class Utility {
             if (row == null) {
                 row = sheet.createRow(numCeldaAnterior);
             }
+            row.setHeightInPoints(25);
             //----------------- Recobro ------------------------------
             Cell cell = row.createCell(10);
             if (dato.getRecobro() == 0) {
@@ -175,8 +180,8 @@ public class Utility {
             } else {
                 cell.setCellValue(dato.getGolpe1());
             }
-            //----------------- Golpe 1 * 2 --------------------------
             cell.setCellStyle(cellStyleLeft);
+            //----------------- Golpe 1 * 2 --------------------------
             cell = row.createCell(12);
             int multi = dato.getGolpe1() * 2;
             if (multi == 0) {
@@ -184,13 +189,15 @@ public class Utility {
             } else {
                 cell.setCellValue(multi);
             }
-            cell.setCellStyle(cellStyleLeft);
+            cell.setCellStyle(cellStyleMulti);
             // next row + 1
             numCeldaAnterior += 1;
             row = sheet.getRow(numCeldaAnterior);
             if (row == null) {
                 row = sheet.createRow(numCeldaAnterior);
             }
+            row.setHeightInPoints(25);
+            /*------------- Golpe 2 ----------- */
             cell = row.createCell(11);
             if (dato.getGolpe2() == 0) {
                 cell = row.createCell(16);
@@ -202,6 +209,7 @@ public class Utility {
                 cell.setCellValue(dato.getGolpe2());
             }
             cell.setCellStyle(cellStyleCenter);
+            /*------- Golpe 2 + Golpe 3*/
             cell = row.createCell(12);
             int suma = dato.getGolpe2() + dato.getGolpe3();
             if (suma == 0) {
@@ -217,6 +225,8 @@ public class Utility {
             if (row == null) {
                 row = sheet.createRow(numCeldaAnterior);
             }
+            row.setHeightInPoints(25);
+            /* ---------Golpe 3 -------------------*/
             cell = row.createCell(11);
             if (dato.getGolpe3() == 0) {
                 cell.setCellValue("");
@@ -231,22 +241,23 @@ public class Utility {
         int count = 1;
         int size = datosCampoProperties.size();
         int total = (int) (datosCampoProperties.get(size - 1).getProfundidadFinal() * 2);
+        logger.info("Size of data: " + total);
         for (int j = 1; j <= total; j++) {
             Row row = sheet.getRow(numCeldaAnterior);
             if (row == null) {
                 row = sheet.createRow(numCeldaAnterior);
             }
             //row.setHeight((short) 20);
-            row.setHeightInPoints(20);
+            //logger.info("Get height row: " + row.getHeightInPoints());
             Cell cell = row.createCell(13);
             if (j % 2 == 0) {
                 cell.setCellValue(count + "'");
                 count++;
             }
-
             cell.setCellStyle(cellStyleCenter);
             numCeldaAnterior += 1;
         }
+
     }
 
     void datosHumedad(XSSFSheet sheet, ObservableList<HumedadProperty> humedadProperties, int size) {
@@ -260,18 +271,14 @@ public class Utility {
         for (HumedadProperty dato : humedadProperties) {
             int firstRow = (int) (dato.getProfundidadInicial() * 2);
             int lastRow = (int) (dato.getProfundidadFinal() * 2);
+            logger.info("first data " + firstRow + ", last data " + lastRow);
             Row row = sheet.getRow(firstRow + 12);
             if (row == null) {
                 row = sheet.createRow(firstRow + 12);
             }
-            if (init == 0) {
-                if (auxProfundidadInicial != firstRow) {
-                    sheet.addMergedRegion(new CellRangeAddress(12, firstRow + 11, 9, 9));
-                }
-            } else {
-                if ((auxProfundidadInicial + 1) != firstRow) {
-                    sheet.addMergedRegion(new CellRangeAddress(auxProfundidadInicial + 12, firstRow + 11, 9, 9));
-                }
+            if (auxProfundidadInicial != firstRow) {
+                logger.info("Auxiliar " + auxProfundidadInicial + ", first row " + firstRow);
+                sheet.addMergedRegion(new CellRangeAddress(auxProfundidadInicial + 12, firstRow + 11, 9, 9));
             }
             Cell cell = row.createCell(9);
             cell.setCellValue(dato.getHumedad());
@@ -317,9 +324,10 @@ public class Utility {
     }
 
     public XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize) {
-        return customCellStyle(wb,horizontal,fontSize,true);
+        return customCellStyle(wb, horizontal, fontSize, true);
     }
-    public XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize,boolean wrapText) {
+
+    public XSSFCellStyle customCellStyle(XSSFWorkbook wb, HorizontalAlignment horizontal, short fontSize, boolean wrapText) {
         XSSFCellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();
         font.setBold(true);
@@ -330,6 +338,7 @@ public class Utility {
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
         return cellStyle;
     }
+
     public XSSFCellStyle customCellStyle(XSSFWorkbook wb) {
         XSSFCellStyle cellStyle = wb.createCellStyle();
         Font font = wb.createFont();
