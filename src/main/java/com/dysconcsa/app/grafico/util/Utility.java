@@ -96,7 +96,7 @@ public class Utility {
         Scene scene = new Scene(page);
         dialogStage.setScene(scene);
         dialogStage.getIcons()
-                .add(new Image(getClass().getResourceAsStream("/image/icons8_File_32px_1.png")));
+                .add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/icons8_File_32px_1.png"))));
     }
 
     public String openImage(Stage stage, ImageView imagen) {

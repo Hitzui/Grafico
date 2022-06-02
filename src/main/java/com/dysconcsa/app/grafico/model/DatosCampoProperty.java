@@ -8,12 +8,12 @@ import javafx.beans.property.SimpleIntegerProperty;
 
 public class DatosCampoProperty extends RecursiveTreeObject<DatosCampoProperty> {
 
-    private DoubleProperty profundidadInicial;
-    private DoubleProperty profundidadFinal;
-    private IntegerProperty recobro;
-    private IntegerProperty golpe1;
-    private IntegerProperty golpe2;
-    private IntegerProperty golpe3;
+    private final DoubleProperty profundidadInicial;
+    private final DoubleProperty profundidadFinal;
+    private final IntegerProperty recobro;
+    private final IntegerProperty golpe1;
+    private final IntegerProperty golpe2;
+    private final IntegerProperty golpe3;
 
     public DatosCampoProperty() {
         this.profundidadInicial = new SimpleDoubleProperty(0.0);

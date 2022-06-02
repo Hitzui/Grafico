@@ -30,7 +30,7 @@ public class UpdateUtility {
     private final PropertiesFile propertiesFile;
     Utility utility = new Utility();
     Logger logger = LoggerFactory.getLogger(getClass());
-    private final DecimalFormat df2 = new DecimalFormat("#.##");
+    private final DecimalFormat df2 = new DecimalFormat("#.###");
     List<Double> yValues = new ArrayList<>();
     List<Integer> xValues = new ArrayList<>();
 
@@ -56,15 +56,14 @@ public class UpdateUtility {
         XSSFCellStyle cellStyleDescripcionSuelo = cellStyle;
         XSSFCellStyle cellStyleBottom = utility.customCellStyle(wb);
         Optional<SuelosProperty> rotado = daoSuelos.findAll().stream().filter(suelo -> suelo.getNombre().equals("rotado")).findAny();
-        double profundidadInicialSuelos = 0d;
-        int cbsb = Integer.parseInt(propertiesFile.getProperty("cbsb"));
+        //int cbsb = Integer.parseInt(propertiesFile.getProperty("cbsb"));
         for (ClasificacionSucsProperty clasificacion : clasificacionSucsProperties) {
             //ejemplo de rango de celdas para los valores de cotas, profundidad y estrato
             double profundidad = clasificacion.getProfundidad();
             double difProfundidad = profundidad - profundidadInicial;
             int cantCelda = (int) (difProfundidad * 2);
             int valorActual = numCeldaAnterior + cantCelda - 1;
-            espesor = Math.abs(profundidad - acumProf) * 0.3048;
+            espesor = Math.abs(profundidad - acumProf) * 0.3; //Este es el valor original => 0.3048;
             acum_espesor += espesor;
             elevacion -= espesor;
             //rango de celda donde van los valores

@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -203,7 +204,7 @@ public class ArchivoExcel {
             endCell.setCellStyle(endStyle);
             //pie de pagina, indicando fil del sondeo
             sheet.addMergedRegion(new CellRangeAddress(size + 13, size + 13, 0, lastRow));
-            try (OutputStream fileOut = new FileOutputStream(file)) {
+            try (OutputStream fileOut = Files.newOutputStream(file.toPath())) {
                 wb.write(fileOut);
                 wb.close();
                 JFXButton btnAceptar = new JFXButton("Aceptar");

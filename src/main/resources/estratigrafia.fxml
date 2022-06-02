@@ -4,11 +4,11 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="400.0" prefWidth="833.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1" fx:controller="com.dysconcsa.app.grafico.controller.EstratigrafiaController">
+<AnchorPane prefHeight="400.0" prefWidth="833.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dysconcsa.app.grafico.controller.EstratigrafiaController">
     <children>
         <TableView fx:id="tableClasificacion" editable="true" prefHeight="281.0" prefWidth="926.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="0.0">
             <columns>
-                <TableColumn fx:id="colProfundidadSucs" prefWidth="109.0" sortable="false" text="Profundidad" />
+                <TableColumn fx:id="colProfundidadSucs" prefWidth="109.0" text="Profundidad" />
                 <TableColumn fx:id="colLimiteLiquido" prefWidth="97.0" sortable="false" text="Limite Liq." />
                 <TableColumn fx:id="colIndicePlasticidad" prefWidth="103.0" sortable="false" text="Indice Plast." />
                 <TableColumn fx:id="colTipoSuelo" prefWidth="134.0" sortable="false" text="Clasificacion" />
@@ -19,8 +19,8 @@
         </TableView>
         <TableView fx:id="tableHumedad" editable="true" prefHeight="200.0" prefWidth="390.0" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="300.0">
             <columns>
-                <TableColumn fx:id="colProfundidadInicialHumedad" prefWidth="111.0" sortable="false" text="Prof. Inicial" />
-                <TableColumn fx:id="colProfundidadFinalHumedad" prefWidth="148.0" sortable="false" text="Prof. Final" />
+                <TableColumn fx:id="colProfundidadInicialHumedad" prefWidth="111.0" text="Prof. Inicial" />
+                <TableColumn fx:id="colProfundidadFinalHumedad" prefWidth="148.0" text="Prof. Final" />
                 <TableColumn fx:id="colContenidoHumedad" prefWidth="209.0" sortable="false" text="Contenido Humedad" />
             </columns>
             <columnResizePolicy>
