@@ -71,12 +71,12 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-excelant</artifactId>
-            <version>4.1.0</version>
+            <version>4.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>4.1.0</version>
+            <version>4.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -86,13 +86,19 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-scratchpad</artifactId>
-            <version>4.1.0</version>
+            <version>5.2.0</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>com.pixelduke</groupId>
             <artifactId>FXRibbon</artifactId>
             <version>1.0.1</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.pixelduke</groupId>
+            <artifactId>fxribbon</artifactId>
+            <version>1.2.2</version>
         </dependency>
+
         <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>annotations</artifactId>

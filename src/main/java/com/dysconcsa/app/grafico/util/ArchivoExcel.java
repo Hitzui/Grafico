@@ -203,7 +203,7 @@ public class ArchivoExcel {
             endCell.setCellValue("Fin del Sondeo No. " + datosSondeo.getSondeoNumero());
             endCell.setCellStyle(endStyle);
             //pie de pagina, indicando fil del sondeo
-            sheet.addMergedRegion(new CellRangeAddress(size + 13, size + 13, 0, lastRow));
+            //sheet.addMergedRegion(new CellRangeAddress(size + 13, size + 13, 0, lastRow));
             try (OutputStream fileOut = Files.newOutputStream(file.toPath())) {
                 wb.write(fileOut);
                 wb.close();
@@ -723,7 +723,7 @@ public class ArchivoExcel {
         XDDFFillProperties fillProperties = new XDDFSolidFillProperties(XDDFColor.from(PresetColor.RED));
         XDDFLineProperties line = new XDDFLineProperties();
         line.setFillProperties(fill);
-        line.setWidth(Units.pixelToEMU(6));
+        line.setWidth((double) Units.pixelToEMU(6));
         for (XDDFChartData.Series values : data.getSeries()) {
             XDDFShapeProperties properties = values.getShapeProperties();
             if (properties == null) {
@@ -740,7 +740,7 @@ public class ArchivoExcel {
         XDDFFillProperties fillProperties = new XDDFSolidFillProperties(XDDFColor.from(PresetColor.RED));
         XDDFLineProperties line = new XDDFLineProperties();
         line.setFillProperties(fill);
-        line.setWidth(Units.pixelToEMU(6));
+        line.setWidth((double) Units.pixelToEMU(6));
         XDDFChartData.Series series = data.getSeries().get(index);
         XDDFShapeProperties properties = series.getShapeProperties();
         if (properties == null) {
