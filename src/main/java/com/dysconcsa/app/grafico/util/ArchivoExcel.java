@@ -5,7 +5,6 @@ import com.dysconcsa.app.grafico.dao.DaoEmpresa;
 import com.dysconcsa.app.grafico.model.*;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.JFXTabPane;
 import javafx.application.HostServices;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.AnchorPane;
@@ -32,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +52,6 @@ public class ArchivoExcel {
     private final int lastRow = 29;
     private final Map<Integer, Integer> seriesGrafico = new HashMap<>();
     UpdateUtility updateUtility = new UpdateUtility();
-
-    public void setTabPane(JFXTabPane tabPane) {
-    }
 
     public void setTrepanoProperties(ObservableList<TrepanoProperty> trepanoProperties) {
         this.trepanoProperties = trepanoProperties;
@@ -96,7 +93,7 @@ public class ArchivoExcel {
                 Variables.getInstance().selectedConfiguration = daoConfiguration.findOne();
             }
             ConfigurationProperty configurationProperty = Variables.getInstance().selectedConfiguration;
-            String pathImage = "";
+            String pathImage;
             if (configurationProperty == null) {
                 pathImage = String.valueOf(getClass().getResource("/image/logo.jpg"));
             } else {
@@ -214,9 +211,7 @@ public class ArchivoExcel {
                         btnCancelar);
                 btnCancelar.setOnAction(e -> dialog.close());
                 btnAceptar.setOnAction(e -> {
-                    EventQueue.invokeLater(() -> {
-                        hostServices.showDocument(String.valueOf(file.toURI()));
-                    });
+                    EventQueue.invokeLater(() -> hostServices.showDocument(String.valueOf(file.toURI())));
                     dialog.close();
                 });
                 dialog.show();
@@ -700,7 +695,7 @@ public class ArchivoExcel {
             CreationHelper helper = wb.getCreationHelper();
             // add a picture in this workbook.
             //InputStream is = new FileInputStream(getClass().getResource("/image/logo.jpg").getPath());
-            InputStream is = new FileInputStream(path);
+            InputStream is = Files.newInputStream(Paths.get(path));
             byte[] bytes = IOUtils.toByteArray(is);
             is.close();
             int pictureIdx = wb.addPicture(bytes, Workbook.PICTURE_TYPE_JPEG);
